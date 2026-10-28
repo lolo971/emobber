@@ -11,6 +11,7 @@
 //   BOUTIQUE_COMMISSION        commission de la plateforme, en % de chaque paiement (défaut : 10)
 //   BOUTIQUE_NOM               nom affiché (défaut : Maât Soby)
 //   BOUTIQUE_COURRIEL_WEBHOOK  webhook (n8n) qui envoie les e-mails : reçoit { a, sujet, texte, html }
+//   BOUTIQUE_COURRIEL_SECRET   secret partagé avec ce webhook (en-tête X-Courriel-Secret)
 //   BOUTIQUE_COURRIEL_ADMIN    adresse prévenue à chaque inscription
 //   BOUTIQUE_ORIGINES          sites autorisés à lire la liste des offres (défaut : https://maatsoby.nubitech.org)
 //   BOUTIQUE_SIMULATION=1      paiements simulés, pour essayer sans Stripe (jamais en production)
@@ -67,7 +68,7 @@ export function creerBoutique(ctx) {
   const stripe = env.STRIPE_CLE_SECRETE
     ? creerStripe({ cle: env.STRIPE_CLE_SECRETE, compte: config.compte, base: env.STRIPE_API || undefined })
     : null;
-  const courriel = creerCourriel({ webhook: env.BOUTIQUE_COURRIEL_WEBHOOK, journaliserLiens: config.simulation });
+  const courriel = creerCourriel({ webhook: env.BOUTIQUE_COURRIEL_WEBHOOK, secret: env.BOUTIQUE_COURRIEL_SECRET, journaliserLiens: config.simulation });
   const magasin = creerMagasin(join(ctx.donnees, 'boutique'));
   const modePaiement = stripe ? (stripe.modeTest ? 'test' : 'reel') : config.simulation ? 'simulation' : 'aucun';
 

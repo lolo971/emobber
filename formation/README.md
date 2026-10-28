@@ -140,8 +140,13 @@ STRIPE_COMPTE=acct_…                # compte Stripe connecté de Maât Soby
 STRIPE_SECRET_WEBHOOK=whsec_…       # webhook « comptes connectés » → https://akasha-formation.nubitech.org/api/stripe/webhook
 BOUTIQUE_COMMISSION=10
 BOUTIQUE_COURRIEL_WEBHOOK=https://…  # webhook n8n qui envoie l'e-mail { a, sujet, texte, html }
+BOUTIQUE_COURRIEL_SECRET=…          # secret partagé, vérifié par le workflow n8n (en-tête X-Courriel-Secret)
 BOUTIQUE_COURRIEL_ADMIN=…           # prévenu à chaque inscription
 ```
+
+Le workflow n8n prêt à importer est dans `deploy/n8n-courriel-boutique.json` (webhook → vérification du secret →
+envoi par le compte SMTP choisi → réponse). Remplacer `__SECRET__` et `__EXPEDITEUR__` avant l'import, puis choisir
+l'identifiant SMTP dans le nœud « Envoyer l'e-mail » et activer le workflow.
 
 Événements à cocher sur le webhook Stripe (onglet « comptes connectés ») : `checkout.session.completed`,
 `checkout.session.async_payment_succeeded`, `checkout.session.expired`, `payment_intent.succeeded`,
