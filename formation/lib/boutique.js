@@ -9,6 +9,8 @@
 //   STRIPE_COMPTE              compte Stripe connecté de l'organisatrice (acct_…) qui encaisse
 //   STRIPE_SECRET_WEBHOOK      secret de signature du webhook (whsec_…)
 //   BOUTIQUE_COMMISSION        commission de la plateforme, en % de chaque paiement (défaut : 10)
+//   BOUTIQUE_FORFAIT          forfait mensuel de la plateforme, en centimes (défaut : 2500 = 25 €)
+//   BOUTIQUE_FORFAIT_DEBUT    premier mois facturé (AAAA-MM) ; vide = pas encore de forfait
 //   BOUTIQUE_NOM               nom affiché (défaut : Maât Soby)
 //   BOUTIQUE_COURRIEL_WEBHOOK  webhook (n8n) qui envoie les e-mails : reçoit { a, sujet, texte, html }
 //   BOUTIQUE_COURRIEL_SECRET   secret partagé avec ce webhook (en-tête X-Courriel-Secret)
@@ -65,6 +67,8 @@ export function creerBoutique(ctx) {
     compte: env.STRIPE_COMPTE || '',
     secretWebhook: env.STRIPE_SECRET_WEBHOOK || '',
     adminCourriel: env.BOUTIQUE_COURRIEL_ADMIN || '',
+    forfait: Math.max(0, Math.round(Number(env.BOUTIQUE_FORFAIT ?? 2500) || 0)),
+    forfaitDebut: /^\d{4}-\d{2}$/.test(env.BOUTIQUE_FORFAIT_DEBUT || '') ? env.BOUTIQUE_FORFAIT_DEBUT : '',
     origines: (env.BOUTIQUE_ORIGINES ?? 'https://maatsoby.nubitech.org').split(',').map((s) => s.trim()).filter(Boolean),
     simulation: env.BOUTIQUE_SIMULATION === '1' && !env.STRIPE_CLE_SECRETE,
   };
@@ -542,9 +546,61 @@ export function creerBoutique(ctx) {
 
   // ---------- Back-office ----------
 
-  async function routerAdmin(req, res, chemin) {
+  async function routerAdmin(req, res, chemin, url) {
     const m = (motif) => chemin.match(motif);
     let p;
+
+    // Suivi de facturation de la plateforme : un versement compte dans le mois où il a été payé.
+    if (req.method === 'GET' && (chemin === '/api/admin/boutique/facturation' || chemin === '/api/admin/boutique/facturation.csv')) {
+      const annee = /^\d{4}$/.test(url.searchParams.get('annee') || '') ? url.searchParams.get('annee') : String(new Date().getFullYear());
+      const lignes = [];
+      for (const c of await lireCommandes()) {
+        if (!['stripe', 'simulation', 'hors-ligne'].includes(c.mode)) continue;
+        for (const e of c.echeances) {
+          if (e.statut !== 'payee' || !e.paye?.startsWith(annee) || !e.montant) continue;
+          lignes.push({
+            date: e.paye, mois: e.paye.slice(0, 7), nom: c.nom, email: c.email, offre: c.offreTitre, mode: c.mode,
+            versement: `${e.numero}/${c.echeances.length}`, montant: e.montant,
+            commission: commissionSur(e.montant, c.commissionPourcent), statut: c.statut,
+          });
+        }
+      }
+      lignes.sort((a, b) => a.date.localeCompare(b.date));
+      if (chemin.endsWith('.csv')) {
+        const nombre = (c) => (c / 100).toFixed(2).replace('.', ',');
+        const champ = (v) => `"${String(v).replace(/"/g, '""')}"`;
+        const MODES_CSV = { stripe: 'Carte (Stripe)', simulation: 'Essai (simulé)', 'hors-ligne': 'Hors ligne' };
+        const csv = [
+          ['Date', 'Client', 'E-mail', 'Offre', 'Mode', 'Versement', 'Montant (€)', `Commission ${config.commission} % (€)`, 'Statut'].map(champ).join(';'),
+          ...lignes.map((l) => [l.date.slice(0, 10), l.nom, l.email, l.offre, MODES_CSV[l.mode], l.versement, nombre(l.montant), nombre(l.commission), l.statut].map(champ).join(';')),
+        ].join('\r\n');
+        res.writeHead(200, {
+          'Content-Type': 'text/csv; charset=utf-8',
+          'Content-Disposition': `attachment; filename="facturation-${annee}.csv"`,
+          'Cache-Control': 'no-store',
+          'X-Content-Type-Options': 'nosniff',
+        });
+        res.end(`\ufeff${csv}\r\n`); // BOM : Excel reconnaît les accents
+        return;
+      }
+      const mois = Array.from({ length: 12 }, (_, i) => {
+        const cle = `${annee}-${String(i + 1).padStart(2, '0')}`;
+        const duMois = lignes.filter((l) => l.mois === cle);
+        const somme = (mode, champ) => duMois.filter((l) => l.mode === mode).reduce((t, l) => t + l[champ], 0);
+        const forfait = config.forfaitDebut && cle >= config.forfaitDebut && cle <= new Date().toISOString().slice(0, 7) ? config.forfait : 0;
+        const commissionHorsLigne = somme('hors-ligne', 'commission');
+        return {
+          mois: cle, encaisse: somme('stripe', 'montant'), commission: somme('stripe', 'commission'),
+          horsLigne: somme('hors-ligne', 'montant'), commissionHorsLigne, forfait,
+          aFacturer: forfait + commissionHorsLigne,
+          essais: somme('simulation', 'montant'),
+        };
+      });
+      return envoyer(res, 200, {
+        annee, commission: config.commission, forfait: config.forfait, forfaitDebut: config.forfaitDebut, mois,
+        annees: [...new Set([String(new Date().getFullYear()), ...(await lireCommandes()).map((c) => c.creeLe.slice(0, 4))])].sort(),
+      });
+    }
 
     if (req.method === 'GET' && chemin === '/api/admin/boutique/etat') {
       return envoyer(res, 200, {
@@ -720,7 +776,7 @@ export function creerBoutique(ctx) {
 
     if (chemin.startsWith('/api/admin/boutique/')) {
       ctx.exigerAdmin(req);
-      await routerAdmin(req, res, chemin);
+      await routerAdmin(req, res, chemin, url);
       return true;
     }
     if (req.method === 'POST' && chemin === '/api/stripe/webhook') { await webhook(req, res); return true; }

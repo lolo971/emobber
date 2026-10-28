@@ -208,3 +208,16 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 @media (hover: hover) and (pointer: fine) {
   .onglet:hover { color: var(--bone); background: var(--basalt-2); }
 }
+
+/* Facturation */
+.tableau-defile { overflow-x: auto; margin-top: 1rem; border: 1px solid var(--hairline); border-radius: var(--rayon); }
+.tableau-facturation { width: 100%; min-width: 44rem; border-collapse: collapse; font-size: .95rem; }
+.tableau-facturation th, .tableau-facturation td { padding: .55rem .75rem; border-bottom: 1px solid var(--hairline); text-align: left; white-space: nowrap; }
+.tableau-facturation thead th { font: 500 10px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--gold); background: var(--basalt); }
+.tableau-facturation td.nombre { text-align: right; font: 500 13px var(--f-mono); font-variant-numeric: tabular-nums; }
+.tableau-facturation td.zero { color: var(--bone-dim); }
+.tableau-facturation td.fort { color: var(--gold-clair); }
+.tableau-facturation tfoot th, .tableau-facturation tfoot td { border-bottom: 0; background: var(--basalt); }
+.tableau-facturation tbody tr:nth-child(even) { background: rgba(255, 255, 255, .015); }
+/* Sur téléphone, la colonne des mois reste visible pendant le défilement horizontal */
+.tableau-facturation tbody th, .tableau-facturation tfoot th, .tableau-facturation thead th:first-child { position: sticky; left: 0; z-index: 1; background: var(--basalt); }

@@ -131,6 +131,10 @@ rsync -a pi@raspberrypi.local:/var/lib/akasha-formation/ ~/sauvegardes/akasha-fo
 - **Agenda, rappels, liste d'attente** : bouton « Ajouter à mon agenda » (fichier `.ics`, alarme la veille) sur la
   fiche, la confirmation, l'e-mail et l'espace stagiaire ; rappel par e-mail dans les 26 h qui précèdent le rendez-vous ;
   quand c'est complet, liste d'attente : dès qu'une place se libère, les premières personnes sont prévenues par e-mail.
+- **Facturation** (onglet du back-office, pour la plateforme) : par mois, l'encaissé par carte, la commission déjà
+  prélevée par Stripe, les paiements hors ligne et leur commission, le forfait mensuel, le total à facturer à Maât Soby ;
+  export du détail en tableur (CSV). Réglages : `BOUTIQUE_FORFAIT` (centimes, défaut 2500) et `BOUTIQUE_FORFAIT_DEBUT`
+  (premier mois facturé, AAAA-MM). Les paiements simulés ne sont pas comptés.
 - **Pour le site de Maât Soby** : `GET /api/boutique/offres` (JSON, lisible depuis `https://maatsoby.nubitech.org`),
   chaque offre a une adresse `url` vers sa fiche de réservation.
 
@@ -142,6 +146,8 @@ STRIPE_CLE_SECRETE=sk_test_…        # clé secrète du compte Stripe de la pla
 STRIPE_COMPTE=acct_…                # compte Stripe connecté de Maât Soby
 STRIPE_SECRET_WEBHOOK=whsec_…       # webhook « comptes connectés » → https://akasha-formation.nubitech.org/api/stripe/webhook
 BOUTIQUE_COMMISSION=10
+BOUTIQUE_FORFAIT=2500               # forfait mensuel de la plateforme, en centimes
+BOUTIQUE_FORFAIT_DEBUT=AAAA-MM      # premier mois du forfait
 BOUTIQUE_COURRIEL_WEBHOOK=https://…  # webhook n8n qui envoie l'e-mail { a, sujet, texte, html }
 BOUTIQUE_COURRIEL_SECRET=…          # secret partagé, vérifié par le workflow n8n (en-tête X-Courriel-Secret)
 BOUTIQUE_COURRIEL_ADMIN=…           # prévenu à chaque inscription

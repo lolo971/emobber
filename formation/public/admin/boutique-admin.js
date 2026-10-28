@@ -353,3 +353,40 @@ export async function vueInscriptions() {
       el('div', { class: 'titre-ligne' }, el('h2', {}, `${commandes.length} inscription${commandes.length > 1 ? 's' : ''}`), filtre),
       zone));
 }
+
+// ---------- Facturation de la plateforme ----------
+
+const NOMS_MOIS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+
+export async function vueFacturation(annee) {
+  const { el, api, app, enTete } = o;
+  const f = await api('GET', `admin/boutique/facturation${annee ? `?annee=${annee}` : ''}`);
+  const total = (cle) => f.mois.reduce((t, m) => t + m[cle], 0);
+  const cellule = (c, fort) => el('td', { class: `nombre ${c ? '' : 'zero'} ${fort ? 'fort' : ''}` }, c ? euros(c) : '—');
+  const choixAnnee = el('select', { onchange: (e) => { location.hash = `#/facturation/${e.target.value}`; } },
+    f.annees.map((a) => el('option', { value: a, selected: a === f.annee }, a)));
+  const essais = total('essais');
+
+  app.replaceChildren(
+    enTete(el('span', { class: 'titre-barre' }, 'Facturation')),
+    el('main', { class: 'page-admin' },
+      el('div', { class: 'titre-ligne' }, el('h1', {}, `Ma facturation ${f.annee}`), choixAnnee),
+      el('p', { class: 'aide' }, `Votre rémunération : ${f.commission} % de commission sur chaque paiement, plus un forfait de ${euros(f.forfait)} par mois. La commission sur les paiements par carte est prélevée automatiquement par Stripe ; le forfait et la commission sur les paiements hors ligne sont à facturer à Maât Soby.`),
+      el('div', { class: 'tuiles' },
+        el('div', { class: 'tuile' }, el('span', { class: 'etiquette' }, 'Commission prélevée'), el('strong', {}, euros(total('commission'))), el('span', { class: 'aide' }, 'déjà sur votre compte Stripe')),
+        el('div', { class: 'tuile' }, el('span', { class: 'etiquette' }, 'À facturer'), el('strong', {}, euros(total('aFacturer'))), el('span', { class: 'aide' }, 'forfait + commission hors ligne')),
+        el('div', { class: 'tuile' }, el('span', { class: 'etiquette' }, 'Total de l\'année'), el('strong', {}, euros(total('commission') + total('aFacturer'))))),
+      !f.forfaitDebut && el('p', { class: 'bilan' }, 'Le forfait mensuel n\'est pas encore compté : indiquez le premier mois facturé sur le serveur (BOUTIQUE_FORFAIT_DEBUT=AAAA-MM).'),
+      essais > 0 && el('p', { class: 'aide' }, `Essais en mode simulé cette année : ${euros(essais)} (non comptés).`),
+      el('div', { class: 'tableau-defile' }, el('table', { class: 'tableau-facturation' },
+        el('thead', {}, el('tr', {},
+          ['Mois', 'Encaissé par carte', `Commission ${f.commission} %`, 'Réglé hors ligne', 'Commission hors ligne', 'Forfait', 'À facturer'].map((t) => el('th', {}, t)))),
+        el('tbody', {}, f.mois.map((m, i) => el('tr', {},
+          el('th', { scope: 'row' }, NOMS_MOIS[i]),
+          cellule(m.encaisse), cellule(m.commission), cellule(m.horsLigne), cellule(m.commissionHorsLigne), cellule(m.forfait), cellule(m.aFacturer, true)))),
+        el('tfoot', {}, el('tr', {},
+          el('th', { scope: 'row' }, 'Total'),
+          ['encaisse', 'commission', 'horsLigne', 'commissionHorsLigne', 'forfait', 'aFacturer'].map((k) => cellule(total(k), true)))))),
+      el('div', { class: 'boutons-ligne', style: 'margin-top:1.2rem' },
+        el('a', { class: 'bouton secondaire', href: `../api/admin/boutique/facturation.csv?annee=${f.annee}`, download: `facturation-${f.annee}.csv` }, 'Exporter le détail (tableur)'))));
+}

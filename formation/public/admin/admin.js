@@ -2,7 +2,7 @@
 
 import { nettoyerHtml, CLASSES_ENCADRE } from '../commun/nettoyer.js';
 import { idUnique, verifierFormation, normaliserFormation, REGLES_MOT_DE_PASSE } from '../commun/valider.js';
-import { installer as installerBoutique, vueOffres, vueOffre, vueInscriptions } from './boutique-admin.js';
+import { installer as installerBoutique, vueOffres, vueOffre, vueInscriptions, vueFacturation } from './boutique-admin.js';
 
 const app = document.getElementById('app');
 const toast = document.getElementById('toast');
@@ -202,13 +202,13 @@ async function supprimerFormation(f) {
 
 function enTete(...milieu) {
   const h = location.hash;
-  const section = h.startsWith('#/o') ? 'offres' : h.startsWith('#/inscriptions') ? 'inscriptions' : h === '#/mot-de-passe' ? '' : 'formations';
+  const section = h.startsWith('#/o') ? 'offres' : h.startsWith('#/inscriptions') ? 'inscriptions' : h.startsWith('#/facturation') ? 'facturation' : h === '#/mot-de-passe' ? '' : 'formations';
   const onglet = (href, cle, libelle) => el('a', { class: `onglet ${section === cle ? 'actif' : ''}`, href, onclick: (e) => {
     if (modifie && !confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) e.preventDefault(); else modifie = false;
   } }, libelle);
   return el('header', { class: 'barre-admin' },
     el('a', { class: 'marque', href: '#/' }, 'AKASHA'),
-    el('nav', { class: 'onglets', 'aria-label': 'Sections' }, onglet('#/', 'formations', 'Formations'), onglet('#/offres', 'offres', 'Offres'), onglet('#/inscriptions', 'inscriptions', 'Inscriptions')),
+    el('nav', { class: 'onglets', 'aria-label': 'Sections' }, onglet('#/', 'formations', 'Formations'), onglet('#/offres', 'offres', 'Offres'), onglet('#/inscriptions', 'inscriptions', 'Inscriptions'), onglet('#/facturation', 'facturation', 'Facturation')),
     ...milieu,
     el('a', { class: 'bouton discret petit', href: '#/mot-de-passe', onclick: (e) => {
       if (modifie && !confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) e.preventDefault(); else modifie = false;
@@ -618,6 +618,8 @@ async function routeur() {
     const offre = location.hash.match(/^#\/o\/([a-z0-9-]+)$/);
     if (location.hash === '#/offres') { formation = null; await vueOffres(); return; }
     if (location.hash === '#/inscriptions') { formation = null; await vueInscriptions(); return; }
+    const facturation = location.hash.match(/^#\/facturation(?:\/(\d{4}))?$/);
+    if (facturation) { formation = null; await vueFacturation(facturation[1]); return; }
     if (offre) { formation = null; await vueOffre(offre[1]); return; }
     if (m) await vueEditeur(m[1]);
     else { formation = null; await vueListe(); }
