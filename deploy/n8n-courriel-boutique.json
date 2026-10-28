@@ -1,4 +1,5 @@
 {
+  "id": "BoutiqueCourriel1",
   "name": "Boutique Maât Soby — envoi des e-mails",
   "active": false,
   "nodes": [
@@ -13,7 +14,10 @@
       "name": "Webhook formation",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [240, 300],
+      "position": [
+        240,
+        300
+      ],
       "webhookId": "5d2f6b1e-8c1a-4f3e-9b7d-boutiquecourriel"
     },
     {
@@ -32,7 +36,10 @@
       "name": "Secret correct ?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [460, 300]
+      "position": [
+        460,
+        300
+      ]
     },
     {
       "parameters": {
@@ -42,48 +49,97 @@
         "emailFormat": "both",
         "text": "={{ $json.body.texte }}",
         "html": "={{ $json.body.html || $json.body.texte }}",
-        "options": { "appendAttribution": false }
+        "options": {
+          "appendAttribution": false
+        }
       },
       "id": "a1b2c3d4-0003-4000-8000-000000000003",
       "name": "Envoyer l'e-mail",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
-      "position": [700, 200]
+      "position": [
+        700,
+        200
+      ]
     },
     {
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"envoye\": true}",
-        "options": { "responseCode": 200 }
+        "options": {
+          "responseCode": 200
+        }
       },
       "id": "a1b2c3d4-0004-4000-8000-000000000004",
       "name": "Envoyé",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [940, 200]
+      "position": [
+        940,
+        200
+      ]
     },
     {
       "parameters": {
         "respondWith": "json",
         "responseBody": "={\"erreur\": \"refusé\"}",
-        "options": { "responseCode": 403 }
+        "options": {
+          "responseCode": 403
+        }
       },
       "id": "a1b2c3d4-0005-4000-8000-000000000005",
       "name": "Refusé",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [700, 420]
+      "position": [
+        700,
+        420
+      ]
     }
   ],
   "connections": {
-    "Webhook formation": { "main": [[{ "node": "Secret correct ?", "type": "main", "index": 0 }]] },
-    "Secret correct ?": {
+    "Webhook formation": {
       "main": [
-        [{ "node": "Envoyer l'e-mail", "type": "main", "index": 0 }],
-        [{ "node": "Refusé", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Secret correct ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
-    "Envoyer l'e-mail": { "main": [[{ "node": "Envoyé", "type": "main", "index": 0 }]] }
+    "Secret correct ?": {
+      "main": [
+        [
+          {
+            "node": "Envoyer l'e-mail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Refusé",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envoyer l'e-mail": {
+      "main": [
+        [
+          {
+            "node": "Envoyé",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "executionOrder": "v1" }
+  "settings": {
+    "executionOrder": "v1"
+  }
 }
