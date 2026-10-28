@@ -1,0 +1,10 @@
+{
+  "name": "akasha-formation",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node serveur.js",
+    "verifier": "node outils/verifier-contenu.mjs"
+  }
+}

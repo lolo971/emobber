@@ -1,0 +1,205 @@
+{
+  "id": "prise-en-main",
+  "titre": "Prise en main",
+  "sousTitre": "Découvrir l'outil de formation d'AKASHA en trois niveaux.",
+  "description": "Comment un parcours se débloque, comment créer une formation dans le back-office, et comment la publier. Dix minutes.",
+  "image": "",
+  "seuil": 80,
+  "publie": true,
+  "modifieLe": "2026-10-28T12:20:52.911Z",
+  "niveaux": [
+    {
+      "id": "le-parcours",
+      "titre": "Le parcours",
+      "resume": "Niveaux, quiz et déblocage.",
+      "lecon": "<p>Une formation est un <strong>chemin de niveaux</strong> à franchir dans l'ordre. Chaque niveau propose une leçon courte, découpée en cartes, puis un quiz.</p>\n<div class=\"encadre\"><p>Le niveau suivant s'ouvre quand le quiz atteint le <strong>seuil de réussite</strong> : 80 % par défaut.</p></div>\n<hr class=\"etape\">\n<h3>Le quiz</h3>\n<p>Une question par écran. On choisit, on vérifie, et la correction s'affiche aussitôt avec son explication.</p>\n<p>Quand une question a plusieurs bonnes réponses, il faut cocher <strong>toutes</strong> les bonnes et aucune mauvaise.</p>\n<div class=\"exemple\"><p>Avec 5 questions et un seuil de 80 %, il faut au moins 4 bonnes réponses.</p></div>\n<hr class=\"etape\">\n<h3>Progresser</h3>\n<ul><li><strong>Étoiles</strong> : une au seuil, deux à 90 %, trois à 100 %. Le meilleur passage est retenu.</li>\n<li><strong>Points ✦</strong> : 10 par bonne réponse, 30 de bonus à la première réussite d'un niveau.</li>\n<li><strong>Série 🔥</strong> : le nombre de jours d'affilée où vous avez appris.</li>\n<li><strong>Réviser</strong> : cinq questions des niveaux réussis, en commençant par celles que vous avez manquées.</li></ul>\n<div class=\"attention\"><p>La progression est gardée dans ce navigateur : en navigation privée, elle s'efface à la fermeture.</p></div>",
+      "questions": [
+        {
+          "id": "ouvert",
+          "enonce": "Quel niveau est ouvert dès le départ ?",
+          "image": "",
+          "choix": [
+            "Le premier",
+            "Le dernier",
+            "Tous"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Chaque niveau suivant s'ouvre après la réussite du précédent."
+        },
+        {
+          "id": "seuil",
+          "enonce": "Quiz de 5 questions, seuil de 80 % : combien de bonnes réponses au minimum ?",
+          "image": "",
+          "choix": [
+            "3",
+            "4",
+            "5"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "4 sur 5 = 80 %."
+        },
+        {
+          "id": "multiple",
+          "enonce": "Une question à plusieurs bonnes réponses est juste quand…",
+          "image": "",
+          "choix": [
+            "une bonne réponse est cochée",
+            "toutes les bonnes, et elles seules, sont cochées",
+            "la majorité des cases cochées sont bonnes"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Ni oubli, ni case en trop."
+        },
+        {
+          "id": "progresser",
+          "enonce": "Qu'est-ce qui est vrai ?",
+          "image": "",
+          "choix": [
+            "Trois étoiles demandent 100 %",
+            "La révision commence par les questions manquées",
+            "La progression survit à la navigation privée"
+          ],
+          "bonnes": [
+            0,
+            1
+          ],
+          "explication": "En navigation privée, la progression s'efface à la fermeture."
+        }
+      ]
+    },
+    {
+      "id": "creer-une-formation",
+      "titre": "Créer une formation",
+      "resume": "Le back-office, pas à pas.",
+      "lecon": "<p>Le back-office s'ouvre à l'adresse <code>/formation/admin/</code>, avec le mot de passe défini sur le serveur.</p>\n<ol><li><strong>Nouvelle formation</strong> : donnez un titre.</li>\n<li><strong>Paramètres</strong> : sous-titre, présentation, image de couverture, seuil.</li>\n<li><strong>Ajouter un niveau</strong>, autant que nécessaire ; les flèches ↑ ↓ changent leur ordre.</li></ol>\n<hr class=\"etape\">\n<h3>Écrire la leçon</h3>\n<p>La barre d'outils met en forme le texte : intertitres, gras, listes, liens et images.</p>\n<p>Trois encadrés structurent le propos : <strong>✦ À retenir</strong>, <strong>◈ Exemple</strong> et <strong>⚠︎ À ne pas confondre</strong>.</p>\n<div class=\"encadre\"><p><strong>⎯ Nouvelle étape</strong> découpe la leçon : la suite s'affiche sur une nouvelle carte. Une idée par carte.</p></div>\n<hr class=\"etape\">\n<h3>Composer le quiz</h3>\n<p>Pour chaque question : un énoncé, des choix, la case des bonnes réponses, une explication, et si besoin un visuel.</p>\n<div class=\"attention\"><p>Les mauvais choix doivent être plausibles : ce sont les vraies confusions qu'on veut lever, jamais des absurdités.</p></div>",
+      "questions": [
+        {
+          "id": "adresse",
+          "enonce": "Où se trouve le back-office ?",
+          "image": "",
+          "choix": [
+            "/formation/admin/",
+            "/formation/quiz/",
+            "Dans l'app AKASHA"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Il est protégé par le mot de passe défini sur le serveur."
+        },
+        {
+          "id": "etape",
+          "enonce": "À quoi sert « Nouvelle étape » ?",
+          "image": "",
+          "choix": [
+            "À créer un nouveau niveau",
+            "À afficher la suite de la leçon sur une nouvelle carte",
+            "À publier la formation"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Une idée par carte rend la leçon plus digeste sur téléphone."
+        },
+        {
+          "id": "encadres",
+          "enonce": "Quels encadrés sont disponibles ?",
+          "image": "",
+          "choix": [
+            "À retenir",
+            "Exemple",
+            "À ne pas confondre",
+            "Vidéo"
+          ],
+          "bonnes": [
+            0,
+            1,
+            2
+          ],
+          "explication": "Les vidéos ne sont pas prises en charge ; les images, si."
+        },
+        {
+          "id": "distracteurs",
+          "enonce": "Comment choisir les mauvais choix d'une question ?",
+          "image": "",
+          "choix": [
+            "Des réponses absurdes, pour aller vite",
+            "Les vraies confusions qu'on veut lever"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Un mauvais choix plausible apprend quelque chose quand on le corrige."
+        }
+      ]
+    },
+    {
+      "id": "publier",
+      "titre": "Publier",
+      "resume": "Brouillon, publication, historique.",
+      "lecon": "<p>Une formation naît en <strong>brouillon</strong> : invisible pour les apprenants. Le bouton <strong>Aperçu</strong> la montre telle qu'ils la verront, après enregistrement.</p>\n<hr class=\"etape\">\n<h3>Publier</h3>\n<p>Cochez <strong>Publiée</strong> dans les paramètres, puis enregistrez. Le serveur vérifie d'abord la formation : un niveau sans question, une question sans bonne réponse ou un choix vide bloquent la publication, et la liste des points à corriger s'affiche.</p>\n<div class=\"encadre\"><p>Chaque enregistrement garde la version précédente dans l'historique du serveur (les 30 dernières). Une formation supprimée part dans la corbeille : rien n'est perdu.</p></div>\n<hr class=\"etape\">\n<h3>Ne pas casser la progression</h3>\n<p>La progression des apprenants est rattachée à l'identifiant de chaque niveau, fixé à sa création. Renommer un niveau ou changer l'ordre est sans risque.</p>\n<div class=\"attention\"><p>Supprimer un niveau puis le recréer lui donne un nouvel identifiant : les apprenants devront le refaire.</p></div>",
+      "questions": [
+        {
+          "id": "brouillon",
+          "enonce": "Une formation en brouillon est-elle visible des apprenants ?",
+          "image": "",
+          "choix": [
+            "Oui",
+            "Non"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Seul le back-office (et l'aperçu) la montre."
+        },
+        {
+          "id": "bloque",
+          "enonce": "Qu'est-ce qui bloque la publication ?",
+          "image": "",
+          "choix": [
+            "Un niveau sans question",
+            "Une question sans bonne réponse cochée",
+            "Une leçon sans image"
+          ],
+          "bonnes": [
+            0,
+            1
+          ],
+          "explication": "Les images sont facultatives."
+        },
+        {
+          "id": "historique",
+          "enonce": "Que devient la version précédente à chaque enregistrement ?",
+          "image": "",
+          "choix": [
+            "Elle est écrasée",
+            "Elle est gardée dans l'historique du serveur"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Les 30 dernières versions sont conservées."
+        },
+        {
+          "id": "renommer",
+          "enonce": "Renommer un niveau fait-il perdre la progression des apprenants ?",
+          "image": "",
+          "choix": [
+            "Oui",
+            "Non"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "La progression suit l'identifiant, fixé à la création, pas le titre."
+        }
+      ]
+    }
+  ]
+}

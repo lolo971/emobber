@@ -1,0 +1,203 @@
+/* Site apprenant — mobile d'abord. Tokens dans commun/theme.css. */
+
+#app { outline: none; min-height: 100dvh; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.chargement, .vide { color: var(--bone-dim); text-align: center; padding: 3rem 1rem; font-style: italic; }
+
+.page {
+  max-width: 40rem; margin: 0 auto;
+  padding: 1.25rem 16px calc(2.5rem + env(safe-area-inset-bottom));
+}
+
+/* Barre du haut */
+.barre-haut {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: .75rem;
+  padding: calc(.6rem + env(safe-area-inset-top)) 16px .6rem;
+  background: rgba(10, 13, 18, .88); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--hairline);
+}
+.marque { font: 700 15px var(--f-titre); letter-spacing: .2em; color: var(--gold); }
+.retour, .fermer {
+  display: grid; place-items: center; width: var(--tactile); height: var(--tactile); margin-left: -10px;
+  color: var(--bone); text-decoration: none; font-size: 1.3rem; border-radius: 50%;
+}
+.retour:hover, .fermer:hover { background: var(--basalt-2); }
+.barre-titre { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 14px var(--f-titre); letter-spacing: .04em; }
+.compteurs { display: flex; gap: .4rem; }
+.compteur {
+  font: 600 12px var(--f-mono); color: var(--gold-clair);
+  padding: .3rem .6rem; border-radius: 999px; background: var(--basalt-2); border: 1px solid var(--hairline);
+}
+
+/* Jauge */
+.jauge { flex: 1; height: 8px; border-radius: 99px; background: var(--basalt-3); overflow: hidden; }
+.jauge > span {
+  display: block; height: 100%; border-radius: inherit;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-clair));
+  transition: width .5s cubic-bezier(.2, .8, .2, 1);
+}
+
+/* Catalogue */
+.titre-page { font-size: 1.7rem; margin: .5rem 0 .25rem; }
+.devise { font-style: italic; color: var(--bone-dim); margin: 0 0 1.5rem; }
+.catalogue { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.carte-formation {
+  display: grid; grid-template-columns: 88px 1fr; gap: 1rem; align-items: center;
+  padding: .9rem; border-radius: var(--rayon); text-decoration: none; color: inherit;
+  background: var(--basalt); border: 1px solid var(--hairline);
+  transition: border-color .15s ease, transform .15s ease;
+}
+.carte-formation:hover { border-color: var(--gold-dim); transform: translateY(-2px); }
+.couverture { width: 88px; height: 88px; object-fit: cover; border-radius: 10px; }
+.couverture.glyphe { display: grid; place-items: center; font-size: 2rem; color: var(--gold); background: var(--gold-soft); }
+.carte-corps h2 { font-size: 1.1rem; margin: 0 0 .2rem; }
+.carte-corps .jauge { margin: .6rem 0 .35rem; }
+.sous-titre { color: var(--bone-dim); margin: 0; font-size: .98rem; }
+
+/* En-tête de formation */
+.entete-formation { text-align: center; padding: .5rem 0 1.5rem; border-bottom: 1px solid var(--hairline); }
+.banniere { width: 100%; max-height: 200px; object-fit: cover; border-radius: var(--rayon); margin-bottom: 1rem; }
+.entete-formation h1 { font-size: 1.6rem; margin: 0 0 .3rem; }
+.description { color: var(--bone-corps); margin: .8rem 0 0; }
+.ligne-progression { display: flex; align-items: center; gap: .75rem; margin: 1.2rem 0; }
+.actions { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
+.actions.colonne { flex-direction: column; align-items: stretch; width: 100%; max-width: 22rem; margin: 1.5rem auto 0; }
+.termine { color: var(--gold-clair); font-family: var(--f-titre); margin: 0; }
+
+/* Chemin de niveaux (zigzag) */
+.chemin { list-style: none; margin: 2rem 0 0; padding: 0; position: relative; }
+.chemin::before {
+  content: ''; position: absolute; left: 50%; top: 28px; bottom: 28px; width: 2px; transform: translateX(-50%);
+  background: repeating-linear-gradient(var(--hairline-strong) 0 6px, transparent 6px 12px);
+}
+.etape { position: relative; display: flex; margin-bottom: 1.6rem; }
+.etape.gauche { justify-content: flex-start; padding-right: 50%; }
+.etape.droite { justify-content: flex-end; padding-left: 50%; }
+.etape-lien {
+  display: flex; align-items: center; gap: .8rem; width: 100%;
+  font: inherit; color: inherit; text-align: left; text-decoration: none;
+  background: none; border: 0; padding: 0; cursor: pointer;
+}
+.etape.gauche .etape-lien { flex-direction: row-reverse; text-align: right; margin-right: -28px; }
+.etape.droite .etape-lien { margin-left: -28px; }
+.medaillon {
+  flex: none; position: relative; z-index: 1;
+  display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
+  font: 600 18px var(--f-mono); background: var(--basalt-2); color: var(--bone-dim);
+  border: 2px solid var(--hairline-strong); transition: transform .15s ease;
+}
+.etape-lien:hover .medaillon { transform: scale(1.06); }
+.etape.ouvert .medaillon { background: var(--gold); color: var(--void); border-color: var(--gold-clair); }
+.etape.courant .medaillon { animation: ak-respire 2.4s ease-in-out infinite; }
+.etape.reussi .medaillon { background: var(--basalt-3); color: var(--gold-clair); border-color: var(--gold); }
+.etape.verrouille .medaillon { font-size: 16px; opacity: .7; }
+.etape-texte { display: flex; flex-direction: column; min-width: 0; }
+.etape-titre { font: 600 15px/1.3 var(--f-titre); color: var(--bone); }
+.etape.verrouille .etape-titre { color: var(--bone-dim); }
+.etape-resume { font-size: .9rem; color: var(--bone-dim); line-height: 1.35; }
+
+.etoiles { letter-spacing: .1em; color: var(--basalt-3); font-size: .95rem; }
+.etoiles .pleine { color: var(--gold); }
+.etoiles.grandes { font-size: 2rem; display: block; margin: .5rem 0; }
+.etoiles.grandes span { display: inline-block; animation: etoile .5s cubic-bezier(.3, 1.6, .5, 1) both; }
+.etoiles.grandes span:nth-child(2) { animation-delay: .15s; }
+.etoiles.grandes span:nth-child(3) { animation-delay: .3s; }
+@keyframes etoile { from { transform: scale(0) rotate(-40deg); opacity: 0; } }
+
+/* Mode immersif : leçon et quiz */
+.barre-immersive {
+  position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: .9rem;
+  padding: calc(.5rem + env(safe-area-inset-top)) 16px .5rem; background: var(--void);
+}
+.page.immersive { padding-bottom: calc(10rem + env(safe-area-inset-bottom)); }
+.titre-lecon { font-size: 1.55rem; margin: .3rem 0 1rem; }
+.carte-lecon {
+  background: var(--basalt); border: 1px solid var(--hairline); border-radius: var(--rayon);
+  padding: 1.3rem 1.2rem; animation: arrivee .35s ease both;
+}
+@keyframes arrivee { from { opacity: 0; transform: translateY(10px); } }
+
+.barre-action {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
+  display: flex; gap: .6rem; align-items: center; justify-content: center;
+  padding: .8rem 16px calc(.8rem + env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, var(--void) 30%);
+}
+.barre-action > * { max-width: 36rem; }
+.barre-action.colonne { flex-direction: column; align-items: stretch; background: var(--void); border-top: 1px solid var(--hairline); }
+.barre-action.colonne > * { width: 100%; margin: 0 auto; }
+
+.enonce { font-size: 1.3rem; margin: .4rem 0 .6rem; }
+.image-question { display: block; max-height: 220px; margin: 0 auto 1rem; border-radius: 10px; }
+.consigne { font: 11px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--bone-dim); margin: 0 0 1rem; }
+.choix-liste { display: grid; gap: .65rem; }
+.choix {
+  display: flex; align-items: center; gap: .85rem; width: 100%; min-height: 56px;
+  padding: .8rem 1rem; text-align: left; cursor: pointer;
+  font: 1.05rem/1.35 var(--f-corps); color: var(--bone);
+  background: var(--basalt); border: 1.5px solid var(--hairline-strong); border-bottom-width: 3px; border-radius: 12px;
+  transition: border-color .12s ease, background .12s ease, transform .08s ease;
+}
+.choix:hover:not([disabled]) { border-color: var(--gold-dim); }
+.choix:active:not([disabled]) { transform: translateY(1px); }
+.choix[aria-pressed="true"] { border-color: var(--gold); background: var(--gold-soft); }
+.puce { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--bone-dim); }
+.choix[aria-pressed="true"] .puce { border-color: var(--gold); background: radial-gradient(var(--gold) 45%, transparent 50%); }
+.choix.bonne { border-color: var(--faience); background: var(--faience-soft); }
+.choix.bonne .puce { border-color: var(--faience); background: radial-gradient(var(--faience) 45%, transparent 50%); }
+.choix.fausse { border-color: var(--ember); background: var(--ember-soft); animation: secousse .35s ease; }
+.choix.fausse .puce { border-color: var(--ember); }
+.choix[disabled] { cursor: default; }
+@keyframes secousse { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+.correction { display: none; padding: .2rem 0 .4rem; }
+.correction.visible { display: block; animation: arrivee .25s ease both; }
+.verdict { font: 700 1.15rem var(--f-titre); margin: 0 0 .2rem; }
+.correction.juste .verdict { color: var(--faience); }
+.correction.faux .verdict { color: var(--ember); }
+.bonne-reponse { margin: 0 0 .2rem; color: var(--bone); }
+.explication { margin: 0; color: var(--bone-corps); font-size: .98rem; }
+.bouton.juste { background: var(--faience); border-color: var(--faience); }
+
+/* Résultat */
+.resultat { text-align: center; padding-top: 3rem; position: relative; overflow: hidden; }
+.resultat h1 { font-size: 1.8rem; margin: .3rem 0 1.4rem; }
+.anneau {
+  --pct: 0; width: 150px; height: 150px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(var(--gold) calc(var(--pct) * 1%), var(--basalt-3) 0);
+  animation: arrivee .5s ease both;
+}
+.resultat.echoue .anneau { background: conic-gradient(var(--ember) calc(var(--pct) * 1%), var(--basalt-3) 0); }
+.anneau > span { display: grid; place-items: center; width: 124px; height: 124px; border-radius: 50%; background: var(--void); font: 700 2.4rem var(--f-titre); }
+.anneau small { font-size: .9rem; color: var(--bone-dim); }
+.detail { color: var(--bone-dim); margin: .4rem 0; }
+.gain { font: 600 1.2rem var(--f-mono); color: var(--gold-clair); margin: .3rem 0; animation: arrivee .4s .4s ease both; }
+.message { font-size: 1.1rem; margin: .8rem auto 0; max-width: 26rem; }
+
+.eclats { position: absolute; inset: 0; pointer-events: none; }
+.eclats span {
+  position: absolute; top: -10px; left: calc(var(--k) * 5.5% + 2%); width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold-clair); opacity: 0;
+  animation: tombe 1.8s calc(var(--k) * 70ms) ease-in forwards;
+}
+.eclats span:nth-child(3n) { background: var(--gold); width: 4px; height: 10px; border-radius: 2px; }
+@keyframes tombe {
+  0% { opacity: 1; transform: translateY(0) rotate(0); }
+  100% { opacity: 0; transform: translateY(70vh) rotate(260deg); }
+}
+
+/* Toast */
+#toast {
+  position: fixed; left: 50%; top: calc(4.2rem + env(safe-area-inset-top)); z-index: 20;
+  transform: translate(-50%, -12px); opacity: 0; max-width: calc(100% - 32px);
+  padding: .7rem 1.1rem; border-radius: 12px; background: var(--basalt-3); color: var(--bone);
+  border: 1px solid var(--hairline-strong); box-shadow: 0 8px 30px rgba(0, 0, 0, .5);
+  transition: transform .25s ease, opacity .25s ease; pointer-events: none;
+}
+#toast.visible { transform: translate(-50%, 0); opacity: 1; }
+
+@media (min-width: 48rem) {
+  .page { padding-top: 2rem; }
+  .carte-lecon { padding: 2rem 2.2rem; }
+}

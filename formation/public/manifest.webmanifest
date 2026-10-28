@@ -1,0 +1,10 @@
+{
+  "name": "Formation AKASHA",
+  "short_name": "Formation",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0A0D12",
+  "theme_color": "#0A0D12",
+  "icons": [{ "src": "icone.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

@@ -1,0 +1,25 @@
+# Service systemd du serveur de formation.
+# Installation (une fois) : voir formation/README.md, section « Mise en place sur le Pi ».
+
+[Unit]
+Description=Formation AKASHA (site apprenant + back-office)
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/opt/akasha-formation
+ExecStart=/usr/bin/node /opt/akasha-formation/serveur.js
+# Contient FORMATION_MOT_DE_PASSE=… (fichier lisible par root seulement)
+EnvironmentFile=/etc/akasha-formation.env
+Environment=FORMATION_DONNEES=/var/lib/akasha-formation
+Environment=FORMATION_PORT=8090
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/akasha-formation
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

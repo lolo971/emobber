@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
-# Publie le site de formation sur le Raspberry Pi.
-# Usage : deploy/deployer-pi.sh [utilisateur@hote:/chemin/]
-# Par défaut : $FORMATION_CIBLE, sinon pi@raspberrypi.local:/var/www/formation/
+# Publie le CODE de la formation sur le Raspberry Pi, puis redémarre le service.
+# Les formations créées dans le back-office vivent sur le Pi (/var/lib/akasha-formation)
+# et ne sont jamais écrasées par ce script.
+#
+# Usage : deploy/deployer-pi.sh [utilisateur@hote]
+# Par défaut : $FORMATION_PI, sinon pi@raspberrypi.local
 set -euo pipefail
 
 racine="$(cd "$(dirname "$0")/.." && pwd)"
-cible="${1:-${FORMATION_CIBLE:-pi@raspberrypi.local:/var/www/formation/}}"
+pi="${1:-${FORMATION_PI:-pi@raspberrypi.local}}"
 
-echo "→ Vérification du contenu"
+echo "→ Vérification des données initiales"
 node "$racine/formation/outils/verifier-contenu.mjs"
 
-echo "→ Copie vers $cible"
-rsync -av --delete \
-  --exclude 'outils/' --exclude 'README.md' \
-  "$racine/formation/" "$cible"
+echo "→ Copie du code vers $pi:/opt/akasha-formation/"
+rsync -av --delete --exclude 'donnees/' --exclude 'README.md' --exclude 'deploy/' \
+  "$racine/formation/" "$pi:/opt/akasha-formation/"
+rsync -av "$racine/deploy/akasha-formation.service" "$racine/deploy/nginx-formation.conf" \
+  "$pi:/opt/akasha-formation/deploy/"
 
-echo "✓ Déployé. Ouvrir http://<adresse-du-pi>/formation/"
+echo "→ Redémarrage du service"
+ssh "$pi" 'sudo systemctl restart akasha-formation && systemctl is-active akasha-formation'
+
+echo "✓ Déployé : http://<adresse-du-pi>/formation/  ·  back-office : /formation/admin/"

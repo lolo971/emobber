@@ -1,0 +1,117 @@
+/* Identité AKASHA — tokens alignés sur le code déployé de l'app. */
+:root {
+  --void: #0A0D12;
+  --basalt: #141920;
+  --basalt-2: #1C232D;
+  --basalt-3: #252E3A;
+  --gold: #B8955B;
+  --gold-clair: #E9D4A0;
+  --gold-dim: #8A7048;
+  --gold-soft: rgba(184, 149, 91, .14);
+  --bone: #F2ECDE;
+  --bone-corps: #DED8C8;
+  --bone-dim: #8B8677;
+  --hairline: rgba(232, 225, 208, .09);
+  --hairline-strong: rgba(232, 225, 208, .16);
+  --faience: #5E9C8E;
+  --faience-soft: rgba(94, 156, 142, .16);
+  --lapis: #4A72AD;
+  --ember: #C2593F;
+  --ember-soft: rgba(194, 89, 63, .16);
+
+  --f-titre: 'Cinzel', serif;
+  --f-corps: 'EB Garamond', Georgia, serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --rayon: 14px;
+  --tactile: 44px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--bone);
+  font: 18px/1.6 var(--f-corps);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { font-family: var(--f-titre); font-weight: 600; line-height: 1.22; color: var(--bone); }
+a { color: var(--gold-clair); }
+img { max-width: 100%; height: auto; }
+
+.etiquette {
+  font: 500 11px/1.4 var(--f-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+/* Boutons */
+.bouton {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  min-height: var(--tactile); padding: .55rem 1.2rem;
+  font: 600 12px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--void); background: var(--gold); border: 1px solid var(--gold);
+  border-radius: 999px; cursor: pointer; text-decoration: none;
+  transition: background .15s ease, transform .1s ease;
+}
+.bouton:hover { background: var(--gold-clair); }
+.bouton:active { transform: scale(.98); }
+.bouton[disabled] { opacity: .4; cursor: not-allowed; }
+.bouton.secondaire { background: transparent; color: var(--gold-clair); border-color: var(--hairline-strong); }
+.bouton.secondaire:hover { border-color: var(--gold); background: var(--gold-soft); }
+.bouton.discret { background: transparent; border-color: transparent; color: var(--bone-dim); }
+.bouton.discret:hover { color: var(--bone); background: var(--basalt-2); }
+.bouton.danger { background: transparent; color: var(--ember); border-color: var(--ember-soft); }
+.bouton.large { width: 100%; }
+
+:focus-visible { outline: 2px solid var(--gold-clair); outline-offset: 3px; }
+
+/* Contenu de leçon (même rendu dans l'éditeur et chez l'apprenant) */
+.contenu-lecon { color: var(--bone-corps); font-size: 1.08rem; }
+.contenu-lecon h3 { font-size: 1.3rem; margin: 1.4rem 0 .6rem; color: var(--bone); }
+.contenu-lecon h4 { font-size: 1.05rem; margin: 1.2rem 0 .4rem; color: var(--gold-clair); }
+.contenu-lecon p { margin: 0 0 1rem; }
+.contenu-lecon strong { color: var(--bone); }
+.contenu-lecon ul, .contenu-lecon ol { padding-left: 1.3rem; margin: 0 0 1rem; }
+.contenu-lecon li { margin: .25rem 0; }
+.contenu-lecon li::marker { color: var(--gold); }
+.contenu-lecon figure { margin: 1.2rem 0; }
+.contenu-lecon img { display: block; border-radius: 10px; border: 1px solid var(--hairline); }
+.contenu-lecon figcaption { font: 12px/1.5 var(--f-mono); color: var(--bone-dim); margin-top: .5rem; letter-spacing: .04em; }
+.contenu-lecon blockquote { margin: 1rem 0; padding: .2rem 0 .2rem 1rem; border-left: 2px solid var(--gold-dim); font-style: italic; }
+.contenu-lecon table { border-collapse: collapse; width: 100%; display: block; overflow-x: auto; font-size: .95rem; margin: 0 0 1rem; }
+.contenu-lecon th, .contenu-lecon td { border: 1px solid var(--hairline-strong); padding: .45rem .65rem; text-align: left; }
+.contenu-lecon th { font: 500 11px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.contenu-lecon code { font-family: var(--f-mono); font-size: .85em; background: var(--basalt-3); padding: .1rem .35rem; border-radius: 4px; }
+.contenu-lecon pre { background: var(--basalt-3); padding: .8rem 1rem; border-radius: 10px; overflow-x: auto; }
+.contenu-lecon pre code { background: none; padding: 0; }
+.contenu-lecon .encadre, .contenu-lecon .exemple, .contenu-lecon .attention {
+  position: relative; margin: 1.2rem 0; padding: 2rem 1rem .9rem; border-radius: 10px;
+  background: var(--gold-soft); border: 1px solid rgba(184, 149, 91, .3);
+}
+.contenu-lecon .encadre::before, .contenu-lecon .exemple::before, .contenu-lecon .attention::before {
+  position: absolute; top: .7rem; left: 1rem;
+  font: 500 10.5px var(--f-mono); letter-spacing: .16em; text-transform: uppercase;
+}
+.contenu-lecon .encadre::before { content: '✦ À retenir'; color: var(--gold); }
+.contenu-lecon .exemple { background: var(--faience-soft); border-color: rgba(94, 156, 142, .35); }
+.contenu-lecon .exemple::before { content: '◈ Exemple'; color: var(--faience); }
+.contenu-lecon .attention { background: var(--ember-soft); border-color: rgba(194, 89, 63, .35); }
+.contenu-lecon .attention::before { content: '⚠︎ À ne pas confondre'; color: var(--ember); }
+.contenu-lecon > :last-child, .contenu-lecon .encadre > :last-child,
+.contenu-lecon .exemple > :last-child, .contenu-lecon .attention > :last-child { margin-bottom: 0; }
+
+@keyframes ak-respire {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184, 149, 91, .45); }
+  50% { box-shadow: 0 0 0 12px rgba(184, 149, 91, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
