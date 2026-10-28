@@ -201,12 +201,28 @@ function estConnecte(req) {
   return true;
 }
 
+// Les en-têtes de proxy ne sont crus que s'ils viennent de la machine elle-même (tunnel cloudflared,
+// Apache) : un appareil du réseau local ne peut pas se faire passer pour un autre.
+const BOUCLE = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
+const viaProxyLocal = (req) => BOUCLE.has(req.socket.remoteAddress);
+
 function adresseClient(req) {
-  return String(req.headers['x-real-ip'] || req.socket.remoteAddress || '');
+  if (viaProxyLocal(req)) {
+    const relayee = req.headers['cf-connecting-ip'] || req.headers['x-real-ip']
+      || String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+    if (relayee) return String(relayee);
+  }
+  return String(req.socket.remoteAddress || '');
+}
+
+// Requête venue d'Internet (relayée par le tunnel ou un proxy), par opposition au réseau local.
+function requeteDistante(req) {
+  return viaProxyLocal(req)
+    && Boolean(req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.headers['x-real-ip']);
 }
 
 function cookieSession(req, jeton, duree) {
-  const securise = req.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
+  const securise = viaProxyLocal(req) && req.headers['x-forwarded-proto'] === 'https' ? '; Secure' : '';
   return `formation_session=${jeton}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${Math.floor(duree / 1000)}${securise}`;
 }
 
@@ -315,6 +331,11 @@ async function routerApi(req, res, chemin) {
   }
   if (req.method === 'POST' && chemin === '/api/admin/connexion') {
     if (!(await backOfficeActif())) throw new ErreurHttp(503, 'Back-office désactivé : définir FORMATION_MOT_DE_PASSE sur le serveur.');
+    // Le mot de passe de secours (variable d'environnement) ne vaut que sur le réseau local :
+    // depuis Internet, il faut celui que l'administrateur a choisi dans le back-office.
+    if (requeteDistante(req) && !(await lireAdmin())) {
+      throw new ErreurHttp(403, 'Depuis Internet, connectez-vous avec le mot de passe choisi dans le back-office. Changez-le d\'abord depuis le réseau local (écran « Mot de passe »).');
+    }
     verifierLimite(req);
     const { motDePasse } = await lireJson(req);
     if (!(await motDePasseCorrect(motDePasse))) {

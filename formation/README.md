@@ -49,6 +49,16 @@ Installée le 28/10/2026, accessible **depuis le réseau local uniquement** :
 - service : `akasha-formation` (systemd, utilisateur `pi`, `FORMATION_PORT=8092`, `FORMATION_HOTE=0.0.0.0`)
 - le port 8090 est pris par le conteneur `atelier-redirection` ; le serveur web du Pi est **Apache** (pas nginx) et n'a pas été modifié ; aucune exposition Internet (cloudflared intact).
 
+### Adresse publique (Cloudflare)
+
+- Site : **https://akasha-formation.nubitech.org/** — publié par le tunnel `cloudflared` déjà présent sur le Pi
+  (nom d'hôte → `http://localhost:8092`) ; aucun port ouvert sur la box.
+- Derrière le tunnel, le serveur lit l'adresse réelle du visiteur (`CF-Connecting-IP`) — uniquement pour les
+  requêtes venues de la machine elle-même — afin que la limite d'essais s'applique par visiteur.
+- **Le mot de passe de secours (`/etc/akasha-formation.env`) ne fonctionne que sur le réseau local.** Depuis
+  Internet, la connexion au back-office exige le mot de passe choisi dans l'écran « Mot de passe » : le changer
+  d'abord depuis http://192.168.1.21:8092/admin/.
+
 ### Mettre à jour le code (sur le Pi)
 
 ```bash
