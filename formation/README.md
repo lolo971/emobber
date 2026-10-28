@@ -12,9 +12,11 @@ Un serveur Node sans aucune dépendance (Node 18 ou plus) sert les deux parties.
 ```
 formation/
 ├── serveur.js                  serveur HTTP : pages, API, médias, sessions du back-office
+├── lib/                        boutique (offres, Stripe, comptes, e-mails), stockage, outils HTTP
 ├── public/
 │   ├── index.html, app.js, style.css      site apprenant
-│   ├── admin/                             back-office
+│   ├── admin/                             back-office (formations, offres, inscriptions)
+│   ├── boutique/                          agenda, réservation, espace stagiaire
 │   └── commun/                            identité AKASHA, règles de validation, nettoyage du HTML
 ├── donnees-initiales/          copiées au premier démarrage si le dossier de données est vide
 └── outils/verifier-contenu.mjs vérifie un dossier de formations (mêmes règles que la publication)
@@ -112,6 +114,40 @@ rsync -a pi@raspberrypi.local:/var/lib/akasha-formation/ ~/sauvegardes/akasha-fo
   `<données>/admin.json` (droits 600), jamais en clair. Après un changement, les autres sessions sont déconnectées.
 - **Mot de passe oublié** : sur le Pi, `sudo rm /var/lib/akasha-formation/admin.json && sudo systemctl restart akasha-formation`
   — le mot de passe de secours de `/etc/akasha-formation.env` redevient valable ; le changer ensuite dans le back-office.
+
+## Boutique Maât Soby : offres, paiements, espace stagiaire (étape 1)
+
+- **Agenda public** : `/boutique/` (liste des offres, fiche, réservation). **Espace stagiaire** : `/boutique/#/compte`.
+- **Back-office** : onglets **Offres** (créer cercles, rituels, stages, accompagnements ; prix ; places ; paiement en 3 fois ;
+  formations ouvertes après paiement ; liens personnels après un Appel d'Âme ; inscription réglée hors ligne) et
+  **Inscriptions** (encaissements, commission, versements, retrait d'accès, lien de connexion à envoyer par WhatsApp).
+- **Formation réservée** : case « Réservée aux inscrits » dans les paramètres d'une formation ; elle s'ouvre aux
+  stagiaires inscrits à une offre qui la contient.
+- **Comptes sans mot de passe** : lien de connexion par e-mail (20 min, usage unique), session de 30 jours. Au retour du
+  paiement, connexion directe seulement si le compte vient d'être créé (payer avec l'adresse d'autrui n'ouvre pas son espace).
+- **Paiement** : Stripe Connect, charges directes sur le compte de Maât Soby, commission de la plateforme prélevée sur
+  chaque paiement (`application_fee_amount`, 10 % par défaut). En 3 fois : le 1er versement par Stripe Checkout, la carte
+  est gardée, les versements 2 et 3 sont prélevés automatiquement à un et deux mois (contrôle toutes les heures).
+- **Pour le site de Maât Soby** : `GET /api/boutique/offres` (JSON, lisible depuis `https://maatsoby.nubitech.org`),
+  chaque offre a une adresse `url` vers sa fiche de réservation.
+
+Réglages (dans `/etc/akasha-formation.env`, puis `sudo systemctl restart akasha-formation`) :
+
+```
+FORMATION_URL_PUBLIQUE=https://akasha-formation.nubitech.org
+STRIPE_CLE_SECRETE=sk_test_…        # clé secrète du compte Stripe de la plateforme (Laurent)
+STRIPE_COMPTE=acct_…                # compte Stripe connecté de Maât Soby
+STRIPE_SECRET_WEBHOOK=whsec_…       # webhook « comptes connectés » → https://akasha-formation.nubitech.org/api/stripe/webhook
+BOUTIQUE_COMMISSION=10
+BOUTIQUE_COURRIEL_WEBHOOK=https://…  # webhook n8n qui envoie l'e-mail { a, sujet, texte, html }
+BOUTIQUE_COURRIEL_ADMIN=…           # prévenu à chaque inscription
+```
+
+Événements à cocher sur le webhook Stripe (onglet « comptes connectés ») : `checkout.session.completed`,
+`checkout.session.async_payment_succeeded`, `checkout.session.expired`, `payment_intent.succeeded`,
+`payment_intent.payment_failed`. Sans clé Stripe, seules les offres gratuites se réservent ; `BOUTIQUE_SIMULATION=1`
+simule les paiements pour les essais (jamais en production). Le forfait mensuel de 25 € se facture à part (abonnement
+Stripe Billing du compte de la plateforme). Données : `<données>/boutique/*.json` (droits 600).
 
 ## Sécurité
 

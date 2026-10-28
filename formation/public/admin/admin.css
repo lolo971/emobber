@@ -9,7 +9,7 @@ body { font-size: 17px; }
 
 /* Champs */
 .champ { display: flex; flex-direction: column; gap: .35rem; margin-bottom: 1.1rem; }
-input[type="text"], input[type="password"], input[type="number"], textarea {
+input[type="text"], input[type="password"], input[type="number"], input[type="email"], input[type="datetime-local"], select, textarea {
   width: 100%; font: 1rem/1.4 var(--f-corps); color: var(--bone);
   background: var(--basalt-2); border: 1px solid var(--hairline-strong); border-radius: 10px;
   padding: .6rem .75rem; min-height: var(--tactile);
@@ -176,3 +176,35 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--gold); f
 @keyframes apparait-admin { from { opacity: 0; transform: translateY(6px); } }
 #toast { transition: transform 150ms ease, opacity 150ms ease; }
 #toast.visible { transition: transform 260ms var(--ease-out), opacity 200ms ease; }
+
+/* Boutique : onglets, état, tuiles d'encaissement */
+.onglets { display: flex; gap: .2rem; }
+.onglet {
+  padding: .4rem .7rem; border-radius: 999px; text-decoration: none; color: var(--bone-dim);
+  font: 600 11px var(--f-mono); letter-spacing: .1em; text-transform: uppercase;
+  transition: background-color var(--d-hover) ease, color var(--d-hover) ease, transform var(--d-press) var(--ease-out);
+}
+.onglet:active { transform: scale(.95); }
+.onglet.actif { color: var(--gold-clair); background: var(--gold-soft); }
+select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%); background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 2rem; }
+.titre-ligne select { width: auto; }
+.etat-boutique { margin: 0 0 1.4rem; }
+.etat-boutique.ok { border-color: rgba(94, 156, 142, .4); background: var(--faience-soft); }
+.page-admin.etroite { max-width: 46rem; }
+.page-admin.pile { display: grid; gap: 1.2rem; }
+.cases { display: grid; gap: .2rem; }
+.interrupteur.serre { padding-top: .5rem; }
+.repartition { margin-top: -.2rem; }
+.liste-simple { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .6rem; }
+.liste-simple li { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center; justify-content: space-between; padding: .7rem .9rem; border: 1px solid var(--hairline); border-radius: 10px; background: var(--basalt-2); }
+.tuiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .7rem; margin: 1rem 0 1.8rem; }
+.tuile { display: flex; flex-direction: column; gap: .2rem; padding: .9rem 1rem; border-radius: var(--rayon); background: var(--basalt); border: 1px solid var(--hairline); }
+.tuile strong { font: 600 1.35rem var(--f-mono); color: var(--gold-clair); font-variant-numeric: tabular-nums; }
+.inscription-admin .ligne-texte { min-width: 14rem; }
+@media (max-width: 40rem) {
+  .grille-2 { grid-template-columns: 1fr; gap: 0; }
+  .onglets { order: 5; width: 100%; overflow-x: auto; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .onglet:hover { color: var(--bone); background: var(--basalt-2); }
+}

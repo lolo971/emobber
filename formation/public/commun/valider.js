@@ -34,6 +34,8 @@ export function normaliserFormation(f) {
     image: media(f?.image),
     seuil: seuil(f?.seuil) ?? SEUIL_DEFAUT,
     publie: f?.publie === true,
+    // « reserve » : ouverte seulement aux stagiaires inscrits à une offre qui la contient.
+    acces: f?.acces === 'reserve' ? 'reserve' : 'libre',
     modifieLe: texte(f?.modifieLe, 40),
     niveaux: liste(f?.niveaux, 200).map((n) => {
       const s = seuil(n?.seuil);

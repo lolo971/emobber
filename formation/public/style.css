@@ -58,6 +58,9 @@
 .carte-formation:active { transform: scale(.98); }
 .couverture { width: 88px; height: 88px; object-fit: cover; border-radius: 10px; }
 .couverture.glyphe { display: grid; place-items: center; color: var(--gold); background: var(--gold-soft); }
+.carte-formation.reservee { border-style: dashed; }
+.carte-formation.reservee .couverture.glyphe { color: var(--bone-dim); background: var(--basalt-2); }
+.lien-espace { margin-top: 1.6rem; text-align: center; font: 500 12px/1.8 var(--f-mono); letter-spacing: .08em; color: var(--bone-dim); }
 .couverture.glyphe .ico { width: 34px; height: 34px; }
 .carte-corps h2 { font-size: 1.1rem; margin: 0 0 .2rem; }
 .carte-corps .jauge { margin: .6rem 0 .35rem; }

@@ -83,7 +83,12 @@ function melanger(liste) {
 
 async function api(chemin) {
   const reponse = await fetch(chemin, { cache: 'no-cache' });
-  if (!reponse.ok) throw new Error(reponse.status === 404 ? 'Cette formation n\'existe pas ou n\'est pas publiée.' : 'Le serveur ne répond pas.');
+  if (!reponse.ok) {
+    throw new Error({
+      404: 'Cette formation n\'existe pas ou n\'est pas publiée.',
+      403: 'Cette formation est réservée aux inscrits : connectez-vous depuis « Mon espace ».',
+    }[reponse.status] || 'Le serveur ne répond pas.');
+  }
   return reponse.json();
 }
 
@@ -195,6 +200,15 @@ async function vueCatalogue() {
   const cartes = liste.map((f) => {
     const p = progression(f.id);
     const faits = f.niveaux.filter((id) => p.niveaux[id]?.reussi).length;
+    // Réservée et pas encore ouverte : la carte mène à l'espace du stagiaire.
+    if (!f.accessible) {
+      return el('li', {}, el('a', { class: 'carte-formation reservee', href: 'boutique/#/compte' },
+        el('div', { class: 'couverture glyphe', 'aria-hidden': 'true' }, ico('cadenas')),
+        el('div', { class: 'carte-corps' },
+          el('h2', {}, f.titre),
+          f.sousTitre && el('p', { class: 'sous-titre' }, f.sousTitre),
+          el('p', { class: 'etiquette' }, 'Réservée aux inscrits · se connecter'))));
+    }
     return el('li', {}, el('a', { class: 'carte-formation', href: `#/f/${encodeURIComponent(f.id)}` },
       f.image ? el('img', { class: 'couverture', src: f.image, alt: '' }) : el('div', { class: 'couverture glyphe', 'aria-hidden': 'true' }, ico('eclat')),
       el('div', { class: 'carte-corps' },
@@ -209,7 +223,9 @@ async function vueCatalogue() {
     el('main', { class: 'page' },
       el('h1', { class: 'titre-page' }, 'Formations'),
       el('p', { class: 'devise' }, 'Relier sans confondre. Explorer sans imposer. Comprendre avant d\'interpréter.'),
-      cartes.length ? el('ul', { class: 'catalogue' }, cartes) : el('p', { class: 'vide' }, 'Aucune formation publiée pour le moment.')));
+      cartes.length ? el('ul', { class: 'catalogue' }, cartes) : el('p', { class: 'vide' }, 'Aucune formation publiée pour le moment.'),
+      liste.some((f) => f.acces === 'reserve') && el('p', { class: 'lien-espace' },
+        el('a', { href: 'boutique/#/compte' }, 'Mon espace stagiaire'), ' · ', el('a', { href: 'boutique/' }, 'Rendez-vous et inscriptions'))));
 }
 
 // ---------- Parcours d'une formation ----------

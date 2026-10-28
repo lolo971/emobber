@@ -9,6 +9,7 @@
 //   FORMATION_DONNEES       dossier des données (défaut : ./donnees)
 //   FORMATION_PORT          port d'écoute (défaut : 8092)
 //   FORMATION_HOTE          adresse d'écoute (défaut : 127.0.0.1 ; 0.0.0.0 pour le réseau local)
+//   Boutique (offres, paiements, comptes stagiaires) : voir lib/boutique.js.
 
 import http from 'node:http';
 import { createReadStream } from 'node:fs';
@@ -17,6 +18,8 @@ import { join, extname, dirname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes, createHash, timingSafeEqual, scrypt } from 'node:crypto';
 import { promisify } from 'node:util';
+import { ENTETES_SECURITE, ErreurHttp, envoyer, lireCorps, lireJson, lireCookie } from './lib/http.js';
+import { creerBoutique } from './lib/boutique.js';
 import { normaliserFormation, verifierFormation, idUnique, slug, ID_VALIDE, reglesNonRespectees } from './public/commun/valider.js';
 
 const ICI = dirname(fileURLToPath(import.meta.url));
@@ -33,7 +36,6 @@ const HOTE = process.env.FORMATION_HOTE || '127.0.0.1';
 const MOT_DE_PASSE = process.env.FORMATION_MOT_DE_PASSE || '';
 
 const DUREE_SESSION = 12 * 3600 * 1000;
-const TAILLE_JSON = 2 * 1024 * 1024;
 const TAILLE_IMAGE = 8 * 1024 * 1024;
 const VERSIONS_GARDEES = 30;
 
@@ -42,17 +44,6 @@ const TYPES = {
   '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
   '.gif': 'image/gif', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webmanifest': 'application/manifest+json',
-};
-
-const ENTETES_SECURITE = {
-  'X-Content-Type-Options': 'nosniff',
-  'Referrer-Policy': 'same-origin',
-  'Content-Security-Policy': [
-    "default-src 'self'", "script-src 'self'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' https://fonts.gstatic.com", "img-src 'self' data: blob: https:",
-    "object-src 'none'", "base-uri 'self'", "frame-ancestors 'self'", "form-action 'self'",
-  ].join('; '),
 };
 
 // ---------- Données ----------
@@ -100,7 +91,7 @@ async function listerFormations() {
 function resumer(f) {
   return {
     id: f.id, titre: f.titre, sousTitre: f.sousTitre, description: f.description, image: f.image,
-    publie: f.publie, modifieLe: f.modifieLe, nbNiveaux: f.niveaux.length,
+    publie: f.publie, acces: f.acces, modifieLe: f.modifieLe, nbNiveaux: f.niveaux.length,
     niveaux: f.niveaux.map((n) => n.id),
   };
 }
@@ -185,14 +176,6 @@ function noterEchec(req) {
   echecs.set(ip, { ...actuel, nombre: actuel.nombre + 1 });
 }
 
-function lireCookie(req, nom) {
-  for (const morceau of (req.headers.cookie || '').split(';')) {
-    const [cle, ...valeur] = morceau.trim().split('=');
-    if (cle === nom) return decodeURIComponent(valeur.join('='));
-  }
-  return null;
-}
-
 function estConnecte(req) {
   const jeton = lireCookie(req, 'formation_session');
   const fin = jeton && sessions.get(jeton);
@@ -227,44 +210,6 @@ function cookieSession(req, jeton, duree) {
 }
 
 // ---------- HTTP ----------
-
-function envoyer(res, statut, corps, entetes = {}) {
-  const json = typeof corps !== 'string';
-  res.writeHead(statut, {
-    ...ENTETES_SECURITE,
-    'Content-Type': json ? 'application/json; charset=utf-8' : 'text/plain; charset=utf-8',
-    'Cache-Control': 'no-store',
-    ...entetes,
-  });
-  res.end(json ? JSON.stringify(corps) : corps);
-}
-
-class ErreurHttp extends Error {
-  constructor(statut, message, details) { super(message); this.statut = statut; this.details = details; }
-}
-
-function lireCorps(req, limite) {
-  return new Promise((ok, ko) => {
-    const morceaux = [];
-    let taille = 0;
-    req.on('data', (m) => {
-      taille += m.length;
-      if (taille > limite) { ko(new ErreurHttp(413, 'Fichier ou contenu trop volumineux.')); req.destroy(); return; }
-      morceaux.push(m);
-    });
-    req.on('end', () => ok(Buffer.concat(morceaux)));
-    req.on('error', ko);
-  });
-}
-
-async function lireJson(req) {
-  try {
-    return JSON.parse((await lireCorps(req, TAILLE_JSON)).toString('utf8'));
-  } catch (e) {
-    if (e instanceof ErreurHttp) throw e;
-    throw new ErreurHttp(400, 'Contenu JSON invalide.');
-  }
-}
 
 function typeImage(octets) {
   const debut = octets.subarray(0, 12);
@@ -311,19 +256,29 @@ function exigerAdmin(req) {
   }
 }
 
-async function routerApi(req, res, chemin) {
+// Une formation « réservée » s'ouvre aux stagiaires inscrits à une offre qui la contient.
+async function peutSuivre(req, f) {
+  return f.acces !== 'reserve' || estConnecte(req) || (await boutique.formationsAccessibles(req)).has(f.id);
+}
+
+async function routerApi(req, res, chemin, url) {
   const m = (motif) => chemin.match(motif);
   let p;
 
   // Public
   if (req.method === 'GET' && chemin === '/api/formations') {
-    return envoyer(res, 200, (await listerFormations()).filter((f) => f.publie).map(resumer));
+    const publiees = (await listerFormations()).filter((f) => f.publie);
+    return envoyer(res, 200, await Promise.all(publiees.map(async (f) => ({ ...resumer(f), accessible: await peutSuivre(req, f) }))));
   }
   if (req.method === 'GET' && (p = m(/^\/api\/formations\/([^/]+)$/))) {
     const f = await lireFormation(p[1]);
     if (!f || (!f.publie && !estConnecte(req))) throw new ErreurHttp(404, 'Formation introuvable.');
+    if (!(await peutSuivre(req, f))) throw new ErreurHttp(403, 'Formation réservée aux inscrits.', { reserve: true });
     return envoyer(res, 200, f);
   }
+
+  // Boutique : offres, paiements, espace des stagiaires (et son back-office)
+  if (await boutique.router(req, res, chemin, url)) return;
 
   // Connexion
   if (req.method === 'GET' && chemin === '/api/admin/session') {
@@ -428,7 +383,7 @@ async function gerer(req, res) {
   const url = new URL(req.url, 'http://local');
   const chemin = url.pathname;
   try {
-    if (chemin.startsWith('/api/')) return await routerApi(req, res, chemin);
+    if (chemin.startsWith('/api/')) return await routerApi(req, res, chemin, url);
 
     if (req.method !== 'GET' && req.method !== 'HEAD') throw new ErreurHttp(405, 'Méthode non permise.');
 
@@ -438,7 +393,7 @@ async function gerer(req, res) {
       if (await servirFichier(res, join(DOSSIERS.medias, media[1]), 'public, max-age=31536000, immutable')) return;
       throw new ErreurHttp(404, 'Image introuvable.');
     }
-    if (chemin === '/admin') return envoyer(res, 301, '', { Location: 'admin/' });
+    if (chemin === '/admin' || chemin === '/boutique') return envoyer(res, 301, '', { Location: `${chemin.slice(1)}/` });
     if (await servirStatique(res, chemin)) return;
     throw new ErreurHttp(404, 'Page introuvable.');
   } catch (e) {
@@ -448,7 +403,13 @@ async function gerer(req, res) {
   }
 }
 
+const boutique = creerBoutique({
+  donnees: DONNEES, port: PORT, exigerAdmin, adresseClient, viaProxyLocal, lireFormation, listerFormations,
+  cookieSecurise: (req) => viaProxyLocal(req) && req.headers['x-forwarded-proto'] === 'https',
+});
+
 await preparerDonnees();
+boutique.demarrer();
 http.createServer(gerer).listen(PORT, HOTE, () => {
   console.log(`Formation AKASHA : http://${HOTE}:${PORT}/  (données : ${DONNEES})`);
   backOfficeActif().then((actif) => { if (!actif) console.warn('⚠ Aucun mot de passe défini : back-office fermé.'); });

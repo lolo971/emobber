@@ -2,6 +2,7 @@
 
 import { nettoyerHtml, CLASSES_ENCADRE } from '../commun/nettoyer.js';
 import { idUnique, verifierFormation, normaliserFormation, REGLES_MOT_DE_PASSE } from '../commun/valider.js';
+import { installer as installerBoutique, vueOffres, vueOffre, vueInscriptions } from './boutique-admin.js';
 
 const app = document.getElementById('app');
 const toast = document.getElementById('toast');
@@ -200,8 +201,14 @@ async function supprimerFormation(f) {
 }
 
 function enTete(...milieu) {
+  const h = location.hash;
+  const section = h.startsWith('#/o') ? 'offres' : h.startsWith('#/inscriptions') ? 'inscriptions' : h === '#/mot-de-passe' ? '' : 'formations';
+  const onglet = (href, cle, libelle) => el('a', { class: `onglet ${section === cle ? 'actif' : ''}`, href, onclick: (e) => {
+    if (modifie && !confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) e.preventDefault(); else modifie = false;
+  } }, libelle);
   return el('header', { class: 'barre-admin' },
     el('a', { class: 'marque', href: '#/' }, 'AKASHA'),
+    el('nav', { class: 'onglets', 'aria-label': 'Sections' }, onglet('#/', 'formations', 'Formations'), onglet('#/offres', 'offres', 'Offres'), onglet('#/inscriptions', 'inscriptions', 'Inscriptions')),
     ...milieu,
     el('a', { class: 'bouton discret petit', href: '#/mot-de-passe', onclick: (e) => {
       if (modifie && !confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) e.preventDefault(); else modifie = false;
@@ -284,6 +291,10 @@ function panneauParametres() {
       el('label', { class: 'interrupteur' },
         el('input', { type: 'checkbox', checked: f.publie, onchange: (e) => { f.publie = e.target.checked; marquerModifie(); } }),
         el('span', {}, el('strong', {}, 'Publiée'), el('br'), el('span', { class: 'aide' }, 'Visible par les apprenants après enregistrement.')))),
+    el('label', { class: 'interrupteur' },
+      el('input', { type: 'checkbox', checked: f.acces === 'reserve', onchange: (e) => { f.acces = e.target.checked ? 'reserve' : 'libre'; marquerModifie(); } }),
+      el('span', {}, el('strong', {}, 'Réservée aux inscrits'), el('br'),
+        el('span', { class: 'aide' }, 'Seuls les stagiaires inscrits à une offre qui contient cette formation peuvent la suivre (Offres → « Accès ouverts après le paiement »).'))),
     el('p', { class: 'aide' }, `Identifiant : ${f.id}`));
 }
 
@@ -604,6 +615,10 @@ async function routeur() {
     if (!session.connecte) return vueConnexion();
     const m = location.hash.match(/^#\/f\/([a-z0-9-]+)$/);
     if (location.hash === '#/mot-de-passe') { formation = null; vueMotDePasse(); return; }
+    const offre = location.hash.match(/^#\/o\/([a-z0-9-]+)$/);
+    if (location.hash === '#/offres') { formation = null; await vueOffres(); return; }
+    if (location.hash === '#/inscriptions') { formation = null; await vueInscriptions(); return; }
+    if (offre) { formation = null; await vueOffre(offre[1]); return; }
     if (m) await vueEditeur(m[1]);
     else { formation = null; await vueListe(); }
   } catch (e) {
@@ -611,5 +626,6 @@ async function routeur() {
   }
 }
 
+installerBoutique({ el, api, annoncer, champ, enTete, choisirImage, app });
 window.addEventListener('hashchange', routeur);
 routeur();
