@@ -1,7 +1,7 @@
 // Back-office : créer et éditer les formations, leurs leçons (texte + visuels) et leurs quiz.
 
 import { nettoyerHtml, CLASSES_ENCADRE } from '../commun/nettoyer.js';
-import { idUnique, verifierFormation, normaliserFormation } from '../commun/valider.js';
+import { idUnique, verifierFormation, normaliserFormation, REGLES_MOT_DE_PASSE } from '../commun/valider.js';
 
 const app = document.getElementById('app');
 const toast = document.getElementById('toast');
@@ -203,6 +203,9 @@ function enTete(...milieu) {
   return el('header', { class: 'barre-admin' },
     el('a', { class: 'marque', href: '#/' }, 'AKASHA'),
     ...milieu,
+    el('a', { class: 'bouton discret petit', href: '#/mot-de-passe', onclick: (e) => {
+      if (modifie && !confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) e.preventDefault(); else modifie = false;
+    } }, 'Mot de passe'),
     el('button', { type: 'button', class: 'bouton discret petit', onclick: async () => {
       if (modifie && !confirm('Des modifications ne sont pas enregistrées. Se déconnecter quand même ?')) return;
       modifie = false;
@@ -527,6 +530,72 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// ---------- Mot de passe de l'administrateur ----------
+
+function vueMotDePasse() {
+  const champMdp = (id, libelle, autocomplete) => {
+    const input = el('input', { type: 'password', id, autocomplete, required: true, maxlength: 200 });
+    return { input, bloc: champ(libelle, input) };
+  };
+  const actuel = champMdp('mdp-actuel', 'Mot de passe actuel', 'current-password');
+  const nouveau = champMdp('mdp-nouveau', 'Nouveau mot de passe', 'new-password');
+  const confirmation = champMdp('mdp-confirmation', 'Confirmer le nouveau mot de passe', 'new-password');
+  const message = el('p', { class: 'message-erreur', role: 'alert' });
+  const valider = el('button', { type: 'submit', class: 'bouton', disabled: true }, 'Changer le mot de passe');
+
+  const regles = [
+    ...REGLES_MOT_DE_PASSE.map((r) => ({ texte: r.texte, test: () => r.test(nouveau.input.value) })),
+    { texte: 'Différent du mot de passe actuel', test: () => nouveau.input.value !== '' && nouveau.input.value !== actuel.input.value },
+    { texte: 'Les deux saisies sont identiques', test: () => nouveau.input.value !== '' && nouveau.input.value === confirmation.input.value },
+  ];
+  const liste = el('ul', { class: 'regles', 'aria-live': 'polite' });
+  function verifier() {
+    let ok = actuel.input.value !== '';
+    liste.replaceChildren(...regles.map((r) => {
+      const tenue = r.test();
+      ok = ok && tenue;
+      return el('li', { class: tenue ? 'tenue' : '' }, el('span', { 'aria-hidden': 'true' }, tenue ? '✓ ' : '○ '), r.texte,
+        el('span', { class: 'sr' }, tenue ? ' (respectée)' : ' (à respecter)'));
+    }));
+    valider.disabled = !ok;
+  }
+  [actuel, nouveau, confirmation].forEach((c) => c.input.addEventListener('input', verifier));
+
+  const afficher = el('label', { class: 'interrupteur' },
+    el('input', { type: 'checkbox', onchange: (e) => {
+      [actuel, nouveau, confirmation].forEach((c) => { c.input.type = e.target.checked ? 'text' : 'password'; });
+    } }), el('span', {}, 'Afficher les mots de passe'));
+
+  const formulaire = el('form', {
+    class: 'carte-edition formulaire-mdp',
+    onsubmit: async (e) => {
+      e.preventDefault();
+      message.textContent = '';
+      valider.disabled = true;
+      try {
+        await api('POST', 'admin/mot-de-passe', { actuel: actuel.input.value, nouveau: nouveau.input.value });
+        [actuel, nouveau, confirmation].forEach((c) => { c.input.value = ''; });
+        verifier();
+        annoncer('Mot de passe changé. Les autres sessions ont été déconnectées.', 'succes');
+      } catch (erreur) {
+        message.textContent = erreur.details?.regles?.length
+          ? `${erreur.message} ${erreur.details.regles.join(' · ')}`
+          : erreur.message;
+        verifier();
+      }
+    },
+  },
+  el('h1', {}, 'Changer le mot de passe'),
+  el('p', { class: 'aide' }, 'Pour confirmer qu\'il s\'agit bien de vous, saisissez d\'abord le mot de passe actuel. Après le changement, les autres appareils connectés seront déconnectés.'),
+  actuel.bloc, nouveau.bloc, confirmation.bloc, afficher,
+  el('p', { class: 'etiquette' }, 'Règles'), liste, message,
+  el('div', { class: 'boutons-ligne' }, valider, el('a', { class: 'bouton discret', href: '#/' }, 'Retour')));
+
+  app.replaceChildren(enTete(el('span', { class: 'titre-barre' }, 'Mot de passe')), el('main', { class: 'page-admin etroite' }, formulaire));
+  verifier();
+  actuel.input.focus();
+}
+
 // ---------- Navigation ----------
 
 async function routeur() {
@@ -534,6 +603,7 @@ async function routeur() {
     const session = await api('GET', 'admin/session');
     if (!session.connecte) return vueConnexion();
     const m = location.hash.match(/^#\/f\/([a-z0-9-]+)$/);
+    if (location.hash === '#/mot-de-passe') { formation = null; vueMotDePasse(); return; }
     if (m) await vueEditeur(m[1]);
     else { formation = null; await vueListe(); }
   } catch (e) {

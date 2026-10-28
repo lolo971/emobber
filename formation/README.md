@@ -44,7 +44,7 @@ Sans `FORMATION_MOT_DE_PASSE`, le site fonctionne mais le back-office reste ferm
 Installée le 28/10/2026, accessible **depuis le réseau local uniquement** :
 
 - site : **http://192.168.1.21:8092/** · back-office : **http://192.168.1.21:8092/admin/**
-- mot de passe du back-office : `sudo cat /etc/akasha-formation.env`
+- mot de passe du back-office : modifiable par l'administrateur dans le back-office (bouton **Mot de passe**) ; mot de passe de secours : `sudo cat /etc/akasha-formation.env`
 - code : `/opt/akasha-formation` (copie de `~/emobber/formation`) · données : `/var/lib/akasha-formation`
 - service : `akasha-formation` (systemd, utilisateur `pi`, `FORMATION_PORT=8092`, `FORMATION_HOTE=0.0.0.0`)
 - le port 8090 est pris par le conteneur `atelier-redirection` ; le serveur web du Pi est **Apache** (pas nginx) et n'a pas été modifié ; aucune exposition Internet (cloudflared intact).
@@ -93,9 +93,19 @@ Tout le contenu tient dans `/var/lib/akasha-formation`. Le sauvegarder suffit :
 rsync -a pi@raspberrypi.local:/var/lib/akasha-formation/ ~/sauvegardes/akasha-formation/
 ```
 
+## Mot de passe de l'administrateur
+
+- **Le changer** : back-office → **Mot de passe**. Il faut être connecté et saisir le mot de passe actuel.
+  Règles : au moins 10 caractères, au moins une lettre, au moins un chiffre ou un symbole, pas d'espace
+  au début ni à la fin, différent de l'actuel. Elles sont affichées en direct et revérifiées par le serveur.
+- Le mot de passe choisi est stocké sous forme d'**empreinte scrypt** (avec sel) dans
+  `<données>/admin.json` (droits 600), jamais en clair. Après un changement, les autres sessions sont déconnectées.
+- **Mot de passe oublié** : sur le Pi, `sudo rm /var/lib/akasha-formation/admin.json && sudo systemctl restart akasha-formation`
+  — le mot de passe de secours de `/etc/akasha-formation.env` redevient valable ; le changer ensuite dans le back-office.
+
 ## Sécurité
 
-- Back-office : mot de passe comparé en temps constant, blocage de 15 minutes après 5 essais ratés, session en cookie `HttpOnly` / `SameSite=Strict` (12 h), en-tête anti-CSRF exigé sur chaque écriture.
+- Back-office : mot de passe comparé en temps constant (empreinte scrypt), blocage de 15 minutes après 5 essais ratés (connexion et changement de mot de passe), session en cookie `HttpOnly` / `SameSite=Strict` (12 h), en-tête anti-CSRF exigé sur chaque écriture.
 - Le HTML des leçons est nettoyé à l'enregistrement et à l'affichage : pas de script, pas d'attribut `on…`, liens `http(s)`/`mailto` seulement. Une politique CSP stricte est servie.
 - Images : PNG, JPEG, WebP ou GIF, reconnus par leur contenu et non par leur extension, 8 Mo maximum. Le SVG est refusé.
 - Les bonnes réponses sont envoyées au navigateur. L'outil sert à apprendre et à s'auto-évaluer, pas à faire passer un examen certifiant.

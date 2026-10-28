@@ -152,3 +152,10 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--gold); f
   .grille-2 { grid-template-columns: 1fr; }
   .interrupteur { padding-top: 0; }
 }
+
+/* Mot de passe */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.page-admin.etroite { max-width: 34rem; }
+.formulaire-mdp .interrupteur { padding: 0 0 1rem; }
+.regles { list-style: none; padding: 0; margin: .4rem 0 1rem; display: grid; gap: .25rem; font-size: .95rem; color: var(--bone-dim); }
+.regles li.tenue { color: var(--faience); }

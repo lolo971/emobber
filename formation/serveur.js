@@ -3,7 +3,9 @@
 // Aucune dépendance : Node 18+ suffit.
 //
 // Variables d'environnement :
-//   FORMATION_MOT_DE_PASSE  mot de passe du back-office (sans lui, le back-office reste fermé)
+//   FORMATION_MOT_DE_PASSE  mot de passe initial / de secours du back-office. Dès que l'administrateur
+//                           change son mot de passe dans le back-office, c'est l'empreinte stockée dans
+//                           <données>/admin.json qui fait foi ; supprimer ce fichier rétablit celui-ci.
 //   FORMATION_DONNEES       dossier des données (défaut : ./donnees)
 //   FORMATION_PORT          port d'écoute (défaut : 8092)
 //   FORMATION_HOTE          adresse d'écoute (défaut : 127.0.0.1 ; 0.0.0.0 pour le réseau local)
@@ -13,8 +15,9 @@ import { createReadStream } from 'node:fs';
 import { readFile, writeFile, rename, mkdir, readdir, stat, copyFile, unlink } from 'node:fs/promises';
 import { join, extname, dirname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { randomBytes, createHash, timingSafeEqual } from 'node:crypto';
-import { normaliserFormation, verifierFormation, idUnique, slug, ID_VALIDE } from './public/commun/valider.js';
+import { randomBytes, createHash, timingSafeEqual, scrypt } from 'node:crypto';
+import { promisify } from 'node:util';
+import { normaliserFormation, verifierFormation, idUnique, slug, ID_VALIDE, reglesNonRespectees } from './public/commun/valider.js';
 
 const ICI = dirname(fileURLToPath(import.meta.url));
 const PUBLIC = join(ICI, 'public');
@@ -124,13 +127,62 @@ async function ecrireFormation(formation) {
 const sessions = new Map();
 const echecs = new Map();
 
+const scryptAsync = promisify(scrypt);
+const FICHIER_ADMIN = join(DONNEES, 'admin.json');
+const LIMITE_ESSAIS = 5;
+const FENETRE_ESSAIS = 15 * 60 * 1000;
+
 function empreinte(texte) {
   return createHash('sha256').update(String(texte)).digest();
 }
 
-function motDePasseCorrect(propose) {
+// Le mot de passe choisi dans le back-office (empreinte scrypt) prime sur celui de l'environnement.
+async function lireAdmin() {
+  try {
+    const admin = JSON.parse(await readFile(FICHIER_ADMIN, 'utf8'));
+    return admin?.algo === 'scrypt' && admin.sel && admin.empreinte ? admin : null;
+  } catch {
+    return null;
+  }
+}
+
+async function backOfficeActif() {
+  return Boolean(MOT_DE_PASSE) || Boolean(await lireAdmin());
+}
+
+async function motDePasseCorrect(propose) {
+  if (typeof propose !== 'string' || !propose) return false;
+  const admin = await lireAdmin();
+  if (admin) {
+    const calcule = await scryptAsync(propose, Buffer.from(admin.sel, 'hex'), 64);
+    return timingSafeEqual(calcule, Buffer.from(admin.empreinte, 'hex'));
+  }
   if (!MOT_DE_PASSE) return false;
   return timingSafeEqual(empreinte(propose), empreinte(MOT_DE_PASSE));
+}
+
+async function enregistrerMotDePasse(nouveau) {
+  const sel = randomBytes(16);
+  const calcule = await scryptAsync(nouveau, sel, 64);
+  const contenu = { algo: 'scrypt', sel: sel.toString('hex'), empreinte: calcule.toString('hex'), modifieLe: new Date().toISOString() };
+  const temporaire = `${FICHIER_ADMIN}.${randomBytes(4).toString('hex')}.tmp`;
+  await writeFile(temporaire, `${JSON.stringify(contenu, null, 2)}\n`, { mode: 0o600 });
+  await rename(temporaire, FICHIER_ADMIN);
+}
+
+// Limite les essais ratés par adresse (connexion et changement de mot de passe).
+function verifierLimite(req) {
+  const t = echecs.get(adresseClient(req));
+  if (t && t.nombre >= LIMITE_ESSAIS && Date.now() - t.depuis < FENETRE_ESSAIS) {
+    throw new ErreurHttp(429, 'Trop d\'essais. Réessayez dans un quart d\'heure.');
+  }
+}
+
+function noterEchec(req) {
+  const ip = adresseClient(req);
+  const t = echecs.get(ip);
+  const actuel = t && Date.now() - t.depuis < FENETRE_ESSAIS ? t : { nombre: 0, depuis: Date.now() };
+  echecs.set(ip, { ...actuel, nombre: actuel.nombre + 1 });
 }
 
 function lireCookie(req, nom) {
@@ -259,22 +311,17 @@ async function routerApi(req, res, chemin) {
 
   // Connexion
   if (req.method === 'GET' && chemin === '/api/admin/session') {
-    return envoyer(res, 200, { connecte: estConnecte(req), active: Boolean(MOT_DE_PASSE) });
+    return envoyer(res, 200, { connecte: estConnecte(req), active: await backOfficeActif() });
   }
   if (req.method === 'POST' && chemin === '/api/admin/connexion') {
-    if (!MOT_DE_PASSE) throw new ErreurHttp(503, 'Back-office désactivé : définir FORMATION_MOT_DE_PASSE sur le serveur.');
-    const ip = adresseClient(req);
-    const tentative = echecs.get(ip);
-    if (tentative && tentative.nombre >= 5 && Date.now() - tentative.depuis < 15 * 60 * 1000) {
-      throw new ErreurHttp(429, 'Trop d\'essais. Réessayez dans un quart d\'heure.');
-    }
+    if (!(await backOfficeActif())) throw new ErreurHttp(503, 'Back-office désactivé : définir FORMATION_MOT_DE_PASSE sur le serveur.');
+    verifierLimite(req);
     const { motDePasse } = await lireJson(req);
-    if (!motDePasseCorrect(motDePasse)) {
-      const t = tentative && Date.now() - tentative.depuis < 15 * 60 * 1000 ? tentative : { nombre: 0, depuis: Date.now() };
-      echecs.set(ip, { ...t, nombre: t.nombre + 1 });
+    if (!(await motDePasseCorrect(motDePasse))) {
+      noterEchec(req);
       throw new ErreurHttp(401, 'Mot de passe incorrect.');
     }
-    echecs.delete(ip);
+    echecs.delete(adresseClient(req));
     const jeton = randomBytes(32).toString('hex');
     sessions.set(jeton, Date.now() + DUREE_SESSION);
     return envoyer(res, 200, { connecte: true }, { 'Set-Cookie': cookieSession(req, jeton, DUREE_SESSION) });
@@ -289,6 +336,23 @@ async function routerApi(req, res, chemin) {
   if (chemin.startsWith('/api/admin/')) {
     exigerAdmin(req);
 
+    if (req.method === 'POST' && chemin === '/api/admin/mot-de-passe') {
+      verifierLimite(req);
+      const { actuel, nouveau } = await lireJson(req);
+      if (!(await motDePasseCorrect(actuel))) {
+        noterEchec(req);
+        throw new ErreurHttp(403, 'Mot de passe actuel incorrect.');
+      }
+      const manquantes = reglesNonRespectees(nouveau);
+      if (actuel === nouveau) manquantes.push('Différent du mot de passe actuel');
+      if (manquantes.length) throw new ErreurHttp(422, 'Le nouveau mot de passe ne respecte pas les règles.', { regles: manquantes });
+      await enregistrerMotDePasse(nouveau);
+      // Toutes les autres sessions sont fermées ; celle-ci reste ouverte.
+      const jeton = lireCookie(req, 'formation_session');
+      for (const autre of sessions.keys()) if (autre !== jeton) sessions.delete(autre);
+      echecs.delete(adresseClient(req));
+      return envoyer(res, 200, { change: true });
+    }
     if (req.method === 'GET' && chemin === '/api/admin/formations') {
       return envoyer(res, 200, (await listerFormations()).map(resumer));
     }
@@ -366,5 +430,5 @@ async function gerer(req, res) {
 await preparerDonnees();
 http.createServer(gerer).listen(PORT, HOTE, () => {
   console.log(`Formation AKASHA : http://${HOTE}:${PORT}/  (données : ${DONNEES})`);
-  if (!MOT_DE_PASSE) console.warn('⚠ FORMATION_MOT_DE_PASSE absent : back-office fermé.');
+  backOfficeActif().then((actif) => { if (!actif) console.warn('⚠ Aucun mot de passe défini : back-office fermé.'); });
 });

@@ -89,3 +89,17 @@ export function verifierFormation(f) {
   });
   return { erreurs, avertissements };
 }
+
+// Règles du mot de passe du back-office (affichées en direct et revérifiées par le serveur).
+export const REGLES_MOT_DE_PASSE = [
+  { texte: 'Au moins 10 caractères', test: (m) => m.length >= 10 },
+  { texte: 'Au moins une lettre', test: (m) => /\p{L}/u.test(m) },
+  { texte: 'Au moins un chiffre ou un symbole', test: (m) => /[^\p{L}\s]/u.test(m) },
+  { texte: 'Pas d\'espace au début ni à la fin', test: (m) => m.length > 0 && m === m.trim() },
+  { texte: '200 caractères au maximum', test: (m) => m.length <= 200 },
+];
+
+export function reglesNonRespectees(motDePasse) {
+  const m = typeof motDePasse === 'string' ? motDePasse : '';
+  return REGLES_MOT_DE_PASSE.filter((r) => !r.test(m)).map((r) => r.texte);
+}
