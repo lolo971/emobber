@@ -25,12 +25,29 @@
 
   --rayon: 14px;
   --tactile: 44px;
+
+  /* Mouvement (Emil Kowalski) : ease-out marqué pour ce qui répond ou entre, tiroir iOS, ressort léger */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-tiroir: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-ressort: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --d-press: 160ms;
+  --d-hover: 150ms;
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+/* Sensation « application installée » sur téléphone */
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;   /* pas de flash gris au toucher */
+}
+html, body { overscroll-behavior-y: none; }   /* pas de « tirer pour recharger » en plein quiz */
+a, button, label, summary, [role="button"] { touch-action: manipulation; }   /* tap sans délai */
+button, .bouton, .choix, .outil, .medaillon, .compteur, .etiquette { -webkit-user-select: none; user-select: none; }
+
+.ico { width: 1.1em; height: 1.1em; flex: none; display: inline-block; vertical-align: -0.15em; }
 
 body {
   margin: 0;
@@ -58,15 +75,22 @@ img { max-width: 100%; height: auto; }
   font: 600 12px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase;
   color: var(--void); background: var(--gold); border: 1px solid var(--gold);
   border-radius: 999px; cursor: pointer; text-decoration: none;
-  transition: background .15s ease, transform .1s ease;
+  transition: background-color var(--d-hover) ease, border-color var(--d-hover) ease,
+    color var(--d-hover) ease, transform var(--d-press) var(--ease-out), opacity var(--d-hover) ease;
 }
-.bouton:hover { background: var(--gold-clair); }
-.bouton:active { transform: scale(.98); }
+.bouton:active:not([disabled]) { transform: scale(.97); }
 .bouton[disabled] { opacity: .4; cursor: not-allowed; }
 .bouton.secondaire { background: transparent; color: var(--gold-clair); border-color: var(--hairline-strong); }
-.bouton.secondaire:hover { border-color: var(--gold); background: var(--gold-soft); }
 .bouton.discret { background: transparent; border-color: transparent; color: var(--bone-dim); }
-.bouton.discret:hover { color: var(--bone); background: var(--basalt-2); }
+.bouton.secondaire:active:not([disabled]) { background: var(--gold-soft); }
+.bouton.discret:active:not([disabled]) { background: var(--basalt-2); }
+
+/* Survols réservés aux souris : sur écran tactile ils « collent » après le toucher */
+@media (hover: hover) and (pointer: fine) {
+  .bouton:hover:not([disabled]) { background: var(--gold-clair); }
+  .bouton.secondaire:hover:not([disabled]) { border-color: var(--gold); background: var(--gold-soft); }
+  .bouton.discret:hover:not([disabled]) { color: var(--bone); background: var(--basalt-2); }
+}
 .bouton.danger { background: transparent; color: var(--ember); border-color: var(--ember-soft); }
 .bouton.large { width: 100%; }
 
@@ -116,11 +140,6 @@ img { max-width: 100%; height: auto; }
   color: var(--bone-dim); margin: -.4rem 0 .8rem;
 }
 
-@keyframes ak-respire {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(184, 149, 91, .45); }
-  50% { box-shadow: 0 0 0 12px rgba(184, 149, 91, 0); }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
+  *, *::before, *::after { transition-duration: 0ms !important; }
 }

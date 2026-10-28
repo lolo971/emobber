@@ -74,12 +74,13 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--gold); f
 .item-meta { font: 10px var(--f-mono); color: var(--bone-dim); }
 .item-actions { display: flex; }
 .icone {
-  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
-  background: none; border: 0; color: var(--bone-dim); font-size: 14px;
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; cursor: pointer;
+  background: none; border: 0; color: var(--bone-dim); font-size: 15px;
+  transition: background-color var(--d-hover) ease, color var(--d-hover) ease, transform var(--d-press) var(--ease-out);
 }
-.icone:hover:not([disabled]) { background: var(--basalt-3); color: var(--bone); }
+.icone:active:not([disabled]) { transform: scale(.92); background: var(--basalt-3); }
 .icone[disabled] { opacity: .25; cursor: default; }
-.icone.danger:hover { color: var(--ember); }
+
 
 .panneau { padding: 1.5rem clamp(16px, 3vw, 2.5rem) 5rem; max-width: 52rem; width: 100%; }
 .pile { display: grid; gap: 1.2rem; }
@@ -109,7 +110,8 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--gold); f
   min-height: 34px; padding: .3rem .6rem; border-radius: 7px; cursor: pointer;
   font: 500 12px var(--f-mono); color: var(--bone-corps); background: transparent; border: 1px solid transparent;
 }
-.outil:hover { background: var(--basalt-3); border-color: var(--hairline-strong); color: var(--bone); }
+.outil { transition: background-color var(--d-hover) ease, transform var(--d-press) var(--ease-out); }
+.outil:active { transform: scale(.95); background: var(--basalt-3); }
 .outil.gras { font-weight: 700; }
 .outil.italique { font-style: italic; }
 .outil.o-encadre { color: var(--gold); }
@@ -159,3 +161,18 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--gold); f
 .formulaire-mdp .interrupteur { padding: 0 0 1rem; }
 .regles { list-style: none; padding: 0; margin: .4rem 0 1rem; display: grid; gap: .25rem; font-size: .95rem; color: var(--bone-dim); }
 .regles li.tenue { color: var(--faience); }
+
+/* Survols réservés aux souris */
+@media (hover: hover) and (pointer: fine) {
+  .icone:hover:not([disabled]) { background: var(--basalt-3); color: var(--bone); }
+  .icone.danger:hover { color: var(--ember); }
+  .outil:hover { background: var(--basalt-3); border-color: var(--hairline-strong); color: var(--bone); }
+  .item-lien:hover .item-titre { color: var(--gold-clair); }
+}
+
+/* Mouvement discret : le back-office est un outil utilisé souvent, il reste sobre */
+.item-niveau, .item-parametres { transition: background-color var(--d-hover) ease, border-color var(--d-hover) ease; }
+.carte-question { animation: apparait-admin 200ms var(--ease-out) both; }
+@keyframes apparait-admin { from { opacity: 0; transform: translateY(6px); } }
+#toast { transition: transform 150ms ease, opacity 150ms ease; }
+#toast.visible { transition: transform 260ms var(--ease-out), opacity 200ms ease; }

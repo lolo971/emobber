@@ -436,13 +436,13 @@ function editeurLecon(n) {
     outil('I', 'Italique', commande('italic'), 'italique'),
     outil('• Liste', 'Liste à puces', commande('insertUnorderedList')),
     outil('1. Liste', 'Liste numérotée', commande('insertOrderedList')),
-    outil('🔗', 'Lien', lien),
+    outil('Lien', 'Insérer un lien', lien),
     el('span', { class: 'separateur' }),
     outil('✦ À retenir', 'Encadré « À retenir »', encadrer('encadre'), 'o-encadre'),
     outil('◈ Exemple', 'Encadré « Exemple »', encadrer('exemple'), 'o-exemple'),
     outil('⚠︎ Attention', 'Encadré « À ne pas confondre »', encadrer('attention'), 'o-attention'),
     el('span', { class: 'separateur' }),
-    outil('🖼 Image', 'Insérer une image', insererImage),
+    outil('Image', 'Insérer une image', insererImage),
     outil('⎯ Nouvelle étape', 'Découper : la suite s\'affichera sur une nouvelle carte', nouvelleEtape, 'o-etape'),
     outil('↶', 'Annuler', commande('undo')));
 

@@ -25,6 +25,33 @@ function el(tag, attributs = {}, ...enfants) {
   return noeud;
 }
 
+// Pictogrammes au trait, dans la couleur du texte (les emojis varient d'un téléphone à l'autre).
+const TRACES = {
+  flamme: 'M12 3c1 3.2 4.5 5 4.5 9.2A4.5 4.5 0 0 1 12 17a4.5 4.5 0 0 1-4.5-4.8c0-1.9.9-3.1 2-4.2.2 1.6 1 2.6 2 3 .4-2.6-.3-5.4.5-8Z M12 21a6 6 0 0 1-6-6',
+  eclat: 'M12 3l2.1 6.9L21 12l-6.9 2.1L12 21l-2.1-6.9L3 12l6.9-2.1Z',
+  cadenas: 'M7 11V8a5 5 0 0 1 10 0v3 M5.5 11h13v9.5h-13Z M12 15v2.5',
+  coche: 'M5 12.5l4.5 4.5L19 7.5',
+  croix: 'M6 6l12 12 M18 6L6 18',
+  fleche: 'M15 5l-7 7 7 7',
+};
+function ico(nom) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('class', `ico ico-${nom}`);
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', nom === 'eclat' ? '1.6' : '1.9');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  const chemin = document.createElementNS(ns, 'path');
+  chemin.setAttribute('d', TRACES[nom]);
+  if (nom === 'eclat') chemin.setAttribute('fill', 'currentColor');
+  svg.append(chemin);
+  return svg;
+}
+
 function afficher(...noeuds) {
   app.replaceChildren(...noeuds.flat().filter(Boolean));
   app.focus({ preventScroll: true });
@@ -123,23 +150,32 @@ function niveauCourant(f, p) {
 
 function compteurs() {
   return el('div', { class: 'compteurs' },
-    el('span', { class: 'compteur', title: 'Jours d\'affilée' }, el('span', { 'aria-hidden': 'true' }, '🔥'), ` ${serieActuelle()}`,
+    el('span', { class: 'compteur', title: 'Jours d\'affilée' }, ico('flamme'), serieActuelle(),
       el('span', { class: 'sr' }, ' jours de série')),
-    el('span', { class: 'compteur', title: 'Points d\'expérience' }, el('span', { 'aria-hidden': 'true' }, '✦'), ` ${joueur().xp}`,
+    el('span', { class: 'compteur', title: 'Points d\'expérience' }, ico('eclat'), joueur().xp,
       el('span', { class: 'sr' }, ' points')));
 }
 
 function barreHaut(retour, titre) {
   return el('header', { class: 'barre-haut' },
-    retour ? el('a', { class: 'retour', href: retour, 'aria-label': 'Retour' }, '←') : el('span', { class: 'marque' }, 'AKASHA'),
+    retour ? el('a', { class: 'retour', href: retour, 'aria-label': 'Retour' }, ico('fleche')) : el('span', { class: 'marque' }, 'AKASHA'),
     titre ? el('span', { class: 'barre-titre' }, titre) : el('span', { class: 'barre-titre etiquette' }, 'La bibliothèque vivante · Formation'),
     compteurs());
 }
 
-function jauge(valeur, total, libelle) {
-  const pct = total ? Math.round((valeur / total) * 100) : 0;
+function jauge(valeur, total, libelle, precedent = 0) {
+  const part = (v) => (total ? Math.min(1, Math.max(0, v / total)) : 0);
   return el('div', { class: 'jauge', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': total, 'aria-valuenow': valeur, 'aria-label': libelle },
-    el('span', { style: `width:${pct}%` }));
+    el('span', { style: `--a:${part(valeur)};--de:${part(precedent)}` }));
+}
+
+// Sens de navigation entre deux écrans d'un même niveau : avancer, reculer, ou arriver.
+let positionPrecedente = null;
+function sensDe(cle, rang) {
+  const avant = positionPrecedente;
+  positionPrecedente = { cle, rang };
+  if (!avant || avant.cle !== cle) return { classe: 'entre-fondu', depuis: Math.max(0, rang - 1) };
+  return { classe: rang >= avant.rang ? 'entre-avant' : 'entre-arriere', depuis: avant.rang };
 }
 
 function etoiles(nombre, classe = '') {
@@ -160,7 +196,7 @@ async function vueCatalogue() {
     const p = progression(f.id);
     const faits = f.niveaux.filter((id) => p.niveaux[id]?.reussi).length;
     return el('li', {}, el('a', { class: 'carte-formation', href: `#/f/${encodeURIComponent(f.id)}` },
-      f.image ? el('img', { class: 'couverture', src: f.image, alt: '' }) : el('div', { class: 'couverture glyphe', 'aria-hidden': 'true' }, '✦'),
+      f.image ? el('img', { class: 'couverture', src: f.image, alt: '' }) : el('div', { class: 'couverture glyphe', 'aria-hidden': 'true' }, ico('eclat')),
       el('div', { class: 'carte-corps' },
         el('h2', {}, f.titre),
         f.sousTitre && el('p', { class: 'sous-titre' }, f.sousTitre),
@@ -189,7 +225,7 @@ async function vueFormation(fid) {
     const statut = statutNiveau(f, p, i);
     const info = p.niveaux[n.id];
     const medaillon = el('span', { class: 'medaillon', 'aria-hidden': 'true' },
-      statut === 'reussi' ? '✓' : statut === 'verrouille' ? '🔒' : i + 1);
+      statut === 'reussi' ? ico('coche') : statut === 'verrouille' ? ico('cadenas') : i + 1);
     const libelle = el('span', { class: 'etape-texte' },
       el('span', { class: 'etiquette' }, `Niveau ${i + 1}`),
       el('span', { class: 'etape-titre' }, n.titre),
@@ -238,16 +274,17 @@ async function vueLecon(fid, nid, numeroEtape) {
   const e = Math.min(Math.max(numeroEtape, 0), etapes.length - 1);
   const derniere = e === etapes.length - 1;
   const total = etapes.length + 1; // + le quiz
+  const sens = sensDe(`${fid}/${nid}`, e);
 
   afficher(
     el('header', { class: 'barre-immersive' },
-      el('a', { class: 'fermer', href: `#/f/${fid}`, 'aria-label': 'Quitter la leçon' }, '✕'),
-      jauge(e + 1, total, 'Avancement dans le niveau'),
-      el('span', { class: 'etiquette' }, `${e + 1}/${total}`)),
+      el('a', { class: 'fermer', href: `#/f/${fid}`, 'aria-label': 'Quitter la leçon' }, ico('croix')),
+      jauge(e + 1, total, 'Avancement dans le niveau', sens.depuis + 1),
+      el('span', { class: 'etiquette compte-etapes' }, `${e + 1}/${total}`)),
     el('main', { class: 'page immersive' },
       el('p', { class: 'etiquette' }, `Niveau ${index + 1} · Leçon`),
       e === 0 && el('h1', { class: 'titre-lecon' }, n.titre),
-      el('article', { class: 'carte-lecon contenu-lecon', html: etapes[e] || '<p>Cette leçon est vide.</p>' })),
+      el('article', { class: `carte-lecon contenu-lecon ${sens.classe}`, html: etapes[e] || '<p>Cette leçon est vide.</p>' })),
     el('footer', { class: 'barre-action' },
       e > 0 && el('a', { class: 'bouton discret', href: `#/f/${fid}/n/${nid}/${e - 1}` }, 'Précédent'),
       el('a', { class: 'bouton large', href: derniere ? `#/f/${fid}/n/${nid}/quiz` : `#/f/${fid}/n/${nid}/${e + 1}` },
@@ -297,7 +334,7 @@ function lancerQuiz({ questions, retour, entete, terminer }) {
       vibrer(juste ? 30 : [60, 40, 60]);
       retourCorrection.className = `correction visible ${juste ? 'juste' : 'faux'}`;
       retourCorrection.replaceChildren(
-        el('p', { class: 'verdict' }, juste ? '✦ Juste !' : 'Pas tout à fait.'),
+        el('p', { class: 'verdict' }, ico(juste ? 'coche' : 'croix'), juste ? 'Juste !' : 'Pas tout à fait.'),
         !juste && el('p', { class: 'bonne-reponse' }, `Réponse : ${q.bonnes.map((b) => q.choix[b]).join(' · ')}`),
         q.explication && el('p', { class: 'explication' }, q.explication));
       verifier.textContent = i === questions.length - 1 ? 'Voir le résultat' : 'Continuer';
@@ -312,10 +349,10 @@ function lancerQuiz({ questions, retour, entete, terminer }) {
 
     afficher(
       el('header', { class: 'barre-immersive' },
-        el('a', { class: 'fermer', href: retour, 'aria-label': 'Quitter le quiz' }, '✕'),
-        jauge(i, questions.length, 'Avancement du quiz'),
-        el('span', { class: 'etiquette' }, `${i + 1}/${questions.length}`)),
-      el('main', { class: 'page immersive' },
+        el('a', { class: 'fermer', href: retour, 'aria-label': 'Quitter le quiz' }, ico('croix')),
+        jauge(i, questions.length, 'Avancement du quiz', Math.max(0, i - 1)),
+        el('span', { class: 'etiquette compte-etapes' }, `${i + 1}/${questions.length}`)),
+      el('main', { class: `page immersive ${i === 0 ? 'entre-fondu' : 'entre-avant'}` },
         el('p', { class: 'etiquette' }, entete),
         el('h1', { class: 'enonce' }, q.enonce),
         q.image && el('img', { class: 'image-question', src: q.image, alt: '' }),

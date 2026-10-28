@@ -1,4 +1,6 @@
-/* Site apprenant — mobile d'abord. Tokens dans commun/theme.css. */
+/* Site apprenant — mobile d'abord. Tokens (couleurs, courbes, durées) dans commun/theme.css.
+   Règles de mouvement : ease-out pour ce qui entre, < 300 ms pour l'interface, transform/opacity
+   uniquement, survols réservés aux souris, retour de pression sur tout ce qui se touche. */
 
 #app { outline: none; min-height: 100dvh; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -6,7 +8,7 @@
 
 .page {
   max-width: 40rem; margin: 0 auto;
-  padding: 1.25rem 16px calc(2.5rem + env(safe-area-inset-bottom));
+  padding: 1.25rem max(16px, env(safe-area-inset-right)) calc(2.5rem + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
 }
 
 /* Barre du haut */
@@ -14,29 +16,34 @@
   position: sticky; top: 0; z-index: 5;
   display: flex; align-items: center; gap: .75rem;
   padding: calc(.6rem + env(safe-area-inset-top)) 16px .6rem;
-  background: rgba(10, 13, 18, .88); backdrop-filter: blur(10px);
+  background: rgba(10, 13, 18, .82); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
   border-bottom: 1px solid var(--hairline);
 }
 .marque { font: 700 15px var(--f-titre); letter-spacing: .2em; color: var(--gold); }
 .retour, .fermer {
   display: grid; place-items: center; width: var(--tactile); height: var(--tactile); margin-left: -10px;
-  color: var(--bone); text-decoration: none; font-size: 1.3rem; border-radius: 50%;
+  color: var(--bone); text-decoration: none; border-radius: 50%;
+  transition: background-color var(--d-press) var(--ease-out), transform var(--d-press) var(--ease-out);
 }
-.retour:hover, .fermer:hover { background: var(--basalt-2); }
+.retour:active, .fermer:active { transform: scale(.92); background: var(--basalt-2); }
 .barre-titre { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 14px var(--f-titre); letter-spacing: .04em; }
 .compteurs { display: flex; gap: .4rem; }
 .compteur {
-  font: 600 12px var(--f-mono); color: var(--gold-clair);
+  display: inline-flex; align-items: center; gap: .3rem;
+  font: 600 12px var(--f-mono); color: var(--gold-clair); font-variant-numeric: tabular-nums;
   padding: .3rem .6rem; border-radius: 999px; background: var(--basalt-2); border: 1px solid var(--hairline);
 }
+.compteur .ico { width: 14px; height: 14px; color: var(--gold); }
 
-/* Jauge */
+/* Jauge : remplie par transform (composé par le GPU), jamais par width */
 .jauge { flex: 1; height: 8px; border-radius: 99px; background: var(--basalt-3); overflow: hidden; }
 .jauge > span {
-  display: block; height: 100%; border-radius: inherit;
+  display: block; height: 100%; border-radius: inherit; transform-origin: left center;
   background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-clair));
-  transition: width .5s cubic-bezier(.2, .8, .2, 1);
+  transform: scaleX(var(--a, 0));
+  animation: jauge-remplir 420ms var(--ease-out) both;
 }
+@keyframes jauge-remplir { from { transform: scaleX(var(--de, 0)); } }
 
 /* Catalogue */
 .titre-page { font-size: 1.7rem; margin: .5rem 0 .25rem; }
@@ -46,11 +53,12 @@
   display: grid; grid-template-columns: 88px 1fr; gap: 1rem; align-items: center;
   padding: .9rem; border-radius: var(--rayon); text-decoration: none; color: inherit;
   background: var(--basalt); border: 1px solid var(--hairline);
-  transition: border-color .15s ease, transform .15s ease;
+  transition: border-color var(--d-hover) ease, transform var(--d-press) var(--ease-out);
 }
-.carte-formation:hover { border-color: var(--gold-dim); transform: translateY(-2px); }
+.carte-formation:active { transform: scale(.98); }
 .couverture { width: 88px; height: 88px; object-fit: cover; border-radius: 10px; }
-.couverture.glyphe { display: grid; place-items: center; font-size: 2rem; color: var(--gold); background: var(--gold-soft); }
+.couverture.glyphe { display: grid; place-items: center; color: var(--gold); background: var(--gold-soft); }
+.couverture.glyphe .ico { width: 34px; height: 34px; }
 .carte-corps h2 { font-size: 1.1rem; margin: 0 0 .2rem; }
 .carte-corps .jauge { margin: .6rem 0 .35rem; }
 .sous-titre { color: var(--bone-dim); margin: 0; font-size: .98rem; }
@@ -85,44 +93,61 @@
   flex: none; position: relative; z-index: 1;
   display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
   font: 600 18px var(--f-mono); background: var(--basalt-2); color: var(--bone-dim);
-  border: 2px solid var(--hairline-strong); transition: transform .15s ease;
+  border: 2px solid var(--hairline-strong);
+  transition: transform var(--d-press) var(--ease-out);
 }
-.etape-lien:hover .medaillon { transform: scale(1.06); }
+.medaillon .ico { width: 22px; height: 22px; }
+.etape-lien:active .medaillon { transform: scale(.94); }
 .etape.ouvert .medaillon { background: var(--gold); color: var(--void); border-color: var(--gold-clair); }
-.etape.courant .medaillon { animation: ak-respire 2.4s ease-in-out infinite; }
 .etape.reussi .medaillon { background: var(--basalt-3); color: var(--gold-clair); border-color: var(--gold); }
-.etape.verrouille .medaillon { font-size: 16px; opacity: .7; }
+.etape.verrouille .medaillon { color: var(--bone-dim); opacity: .75; }
+/* Le niveau en cours « respire » : un halo animé en transform/opacity (pas de box-shadow animé) */
+.etape.courant .medaillon::after {
+  content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--gold);
+  animation: ak-halo 2.6s var(--ease-out) infinite; pointer-events: none;
+}
+@keyframes ak-halo {
+  0% { transform: scale(1); opacity: .7; }
+  70%, 100% { transform: scale(1.32); opacity: 0; }
+}
 .etape-texte { display: flex; flex-direction: column; min-width: 0; }
-.etape-titre { font: 600 15px/1.3 var(--f-titre); color: var(--bone); }
+.etape-titre { font: 600 15px/1.3 var(--f-titre); color: var(--bone); overflow-wrap: anywhere; }
 .etape.verrouille .etape-titre { color: var(--bone-dim); }
 .etape-resume { font-size: .9rem; color: var(--bone-dim); line-height: 1.35; }
 
 .etoiles { letter-spacing: .1em; color: var(--basalt-3); font-size: .95rem; }
 .etoiles .pleine { color: var(--gold); }
 .etoiles.grandes { font-size: 2rem; display: block; margin: .5rem 0; }
-.etoiles.grandes span { display: inline-block; animation: etoile .5s cubic-bezier(.3, 1.6, .5, 1) both; }
-.etoiles.grandes span:nth-child(2) { animation-delay: .15s; }
-.etoiles.grandes span:nth-child(3) { animation-delay: .3s; }
-@keyframes etoile { from { transform: scale(0) rotate(-40deg); opacity: 0; } }
+.etoiles.grandes span { display: inline-block; animation: etoile 420ms var(--ease-ressort) both; }
+.etoiles.grandes span:nth-child(2) { animation-delay: 120ms; }
+.etoiles.grandes span:nth-child(3) { animation-delay: 240ms; }
+@keyframes etoile { from { transform: scale(.6) rotate(-20deg); opacity: 0; } }
 
 /* Mode immersif : leçon et quiz */
 .barre-immersive {
   position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: .9rem;
   padding: calc(.5rem + env(safe-area-inset-top)) 16px .5rem; background: var(--void);
 }
+.compte-etapes { font-variant-numeric: tabular-nums; min-width: 2.6em; text-align: right; }
 .page.immersive { padding-bottom: calc(10rem + env(safe-area-inset-bottom)); }
 .titre-lecon { font-size: 1.55rem; margin: .3rem 0 1rem; }
 .carte-lecon {
   background: var(--basalt); border: 1px solid var(--hairline); border-radius: var(--rayon);
-  padding: 1.3rem 1.2rem; animation: arrivee .35s ease both;
+  padding: 1.3rem 1.2rem;
 }
 .carte-lecon > :first-child { margin-top: 0; }
-@keyframes arrivee { from { opacity: 0; transform: translateY(10px); } }
+/* Cohérence spatiale : on avance → la carte vient de droite ; on recule → de gauche */
+.entre-avant { animation: entre-avant 280ms var(--ease-out) both; }
+.entre-arriere { animation: entre-arriere 280ms var(--ease-out) both; }
+.entre-fondu { animation: fondu 220ms ease both; }
+@keyframes entre-avant { from { opacity: 0; transform: translateX(28px); } }
+@keyframes entre-arriere { from { opacity: 0; transform: translateX(-28px); } }
+@keyframes fondu { from { opacity: 0; } }
 
 .barre-action {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
   display: flex; gap: .6rem; align-items: center; justify-content: center;
-  padding: .8rem 16px calc(.8rem + env(safe-area-inset-bottom));
+  padding: .8rem max(16px, env(safe-area-inset-right)) calc(.8rem + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   background: linear-gradient(transparent, var(--void) 30%);
 }
 .barre-action > * { max-width: 36rem; }
@@ -138,49 +163,65 @@
   padding: .8rem 1rem; text-align: left; cursor: pointer;
   font: 1.05rem/1.35 var(--f-corps); color: var(--bone);
   background: var(--basalt); border: 1.5px solid var(--hairline-strong); border-bottom-width: 3px; border-radius: 12px;
-  transition: border-color .12s ease, background .12s ease, transform .08s ease;
+  transition: border-color var(--d-press) ease, background-color var(--d-press) ease, transform var(--d-press) var(--ease-out);
 }
-.choix:hover:not([disabled]) { border-color: var(--gold-dim); }
-.choix:active:not([disabled]) { transform: translateY(1px); }
+.choix:active:not([disabled]) { transform: scale(.98); }
 .choix[aria-pressed="true"] { border-color: var(--gold); background: var(--gold-soft); }
-.puce { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--bone-dim); }
-.choix[aria-pressed="true"] .puce { border-color: var(--gold); background: radial-gradient(var(--gold) 45%, transparent 50%); }
-.choix.bonne { border-color: var(--faience); background: var(--faience-soft); }
-.choix.bonne .puce { border-color: var(--faience); background: radial-gradient(var(--faience) 45%, transparent 50%); }
-.choix.fausse { border-color: var(--ember); background: var(--ember-soft); animation: secousse .35s ease; }
+.puce {
+  flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--bone-dim); transition: border-color var(--d-press) ease;
+}
+.puce::after {
+  content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--gold);
+  transform: scale(.4); opacity: 0;
+  transition: transform 200ms var(--ease-ressort), opacity 120ms ease;
+}
+.choix[aria-pressed="true"] .puce { border-color: var(--gold); }
+.choix[aria-pressed="true"] .puce::after { transform: scale(1); opacity: 1; }
+.choix.bonne { border-color: var(--faience); background: var(--faience-soft); animation: confirme 360ms var(--ease-ressort); }
+.choix.bonne .puce { border-color: var(--faience); }
+.choix.bonne .puce::after { background: var(--faience); transform: scale(1); opacity: 1; }
+.choix.fausse { border-color: var(--ember); background: var(--ember-soft); animation: secousse 320ms var(--ease-out); }
 .choix.fausse .puce { border-color: var(--ember); }
+.choix.fausse .puce::after { background: var(--ember); transform: scale(1); opacity: 1; }
 .choix[disabled] { cursor: default; }
-@keyframes secousse { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+@keyframes confirme { 40% { transform: scale(1.025); } }
+@keyframes secousse { 20% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 80% { transform: translateX(-2px); } }
 
+/* Correction : une feuille qui monte du bas, comme sur iOS */
 .correction { display: none; padding: .2rem 0 .4rem; }
-.correction.visible { display: block; animation: arrivee .25s ease both; }
-.verdict { font: 700 1.15rem var(--f-titre); margin: 0 0 .2rem; }
+.correction.visible { display: block; animation: monte 300ms var(--ease-tiroir) both; }
+@keyframes monte { from { opacity: 0; transform: translateY(16px); } }
+.verdict { display: flex; align-items: center; gap: .45rem; font: 700 1.15rem var(--f-titre); margin: 0 0 .2rem; }
+.verdict .ico { width: 20px; height: 20px; }
 .correction.juste .verdict { color: var(--faience); }
 .correction.faux .verdict { color: var(--ember); }
 .bonne-reponse { margin: 0 0 .2rem; color: var(--bone); }
 .explication { margin: 0; color: var(--bone-corps); font-size: .98rem; }
 .bouton.juste { background: var(--faience); border-color: var(--faience); }
 
-/* Résultat */
+/* Résultat — moment rare : on peut se permettre un peu de célébration */
 .resultat { text-align: center; padding-top: 3rem; position: relative; overflow: hidden; }
 .resultat h1 { font-size: 1.8rem; margin: .3rem 0 1.4rem; }
 .anneau {
   --pct: 0; width: 150px; height: 150px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center;
   background: conic-gradient(var(--gold) calc(var(--pct) * 1%), var(--basalt-3) 0);
-  animation: arrivee .5s ease both;
+  animation: apparait 420ms var(--ease-out) both;
 }
+@keyframes apparait { from { opacity: 0; transform: scale(.94); } }
 .resultat.echoue .anneau { background: conic-gradient(var(--ember) calc(var(--pct) * 1%), var(--basalt-3) 0); }
-.anneau > span { display: grid; place-items: center; width: 124px; height: 124px; border-radius: 50%; background: var(--void); font: 700 2.4rem var(--f-titre); }
+.anneau > span { display: grid; place-items: center; width: 124px; height: 124px; border-radius: 50%; background: var(--void); font: 700 2.4rem var(--f-titre); font-variant-numeric: tabular-nums; }
 .anneau small { font-size: .9rem; color: var(--bone-dim); }
 .detail { color: var(--bone-dim); margin: .4rem 0; }
-.gain { font: 600 1.2rem var(--f-mono); color: var(--gold-clair); margin: .3rem 0; animation: arrivee .4s .4s ease both; }
+.gain { font: 600 1.2rem var(--f-mono); color: var(--gold-clair); margin: .3rem 0; animation: apparait 360ms 300ms var(--ease-out) both; }
 .message { font-size: 1.1rem; margin: .8rem auto 0; max-width: 26rem; }
 
 .eclats { position: absolute; inset: 0; pointer-events: none; }
 .eclats span {
   position: absolute; top: -10px; left: calc(var(--k) * 5.5% + 2%); width: 6px; height: 6px; border-radius: 50%;
   background: var(--gold-clair); opacity: 0;
-  animation: tombe 1.8s calc(var(--k) * 70ms) ease-in forwards;
+  /* une chute obéit à la gravité : ici l'accélération (ease-in) est physiquement juste */
+  animation: tombe 1.8s calc(var(--k) * 70ms) cubic-bezier(.55, 0, 1, .45) forwards;
 }
 .eclats span:nth-child(3n) { background: var(--gold); width: 4px; height: 10px; border-radius: 2px; }
 @keyframes tombe {
@@ -188,17 +229,36 @@
   100% { opacity: 0; transform: translateY(70vh) rotate(260deg); }
 }
 
-/* Toast */
+/* Toast : entre et sort par le même côté ; la sortie est plus rapide que l'entrée */
 #toast {
   position: fixed; left: 50%; top: calc(4.2rem + env(safe-area-inset-top)); z-index: 20;
-  transform: translate(-50%, -12px); opacity: 0; max-width: calc(100% - 32px);
+  transform: translate(-50%, -10px) scale(.97); opacity: 0; max-width: calc(100% - 32px);
   padding: .7rem 1.1rem; border-radius: 12px; background: var(--basalt-3); color: var(--bone);
   border: 1px solid var(--hairline-strong); box-shadow: 0 8px 30px rgba(0, 0, 0, .5);
-  transition: transform .25s ease, opacity .25s ease; pointer-events: none;
+  transition: transform 150ms ease, opacity 150ms ease; pointer-events: none;
 }
-#toast.visible { transform: translate(-50%, 0); opacity: 1; }
+#toast.visible {
+  transform: translate(-50%, 0) scale(1); opacity: 1;
+  transition: transform 260ms var(--ease-out), opacity 200ms ease;
+}
+
+/* Survols : seulement pour une souris (sur téléphone, un survol « reste collé » après le toucher) */
+@media (hover: hover) and (pointer: fine) {
+  .retour:hover, .fermer:hover { background: var(--basalt-2); }
+  .carte-formation:hover { border-color: var(--gold-dim); }
+  .etape-lien:hover .medaillon { transform: scale(1.05); }
+  .choix:hover:not([disabled]):not([aria-pressed="true"]) { border-color: var(--gold-dim); }
+}
 
 @media (min-width: 48rem) {
   .page { padding-top: 2rem; }
   .carte-lecon { padding: 2rem 2.2rem; }
+}
+
+/* Mouvement réduit : on garde des fondus courts, on retire déplacements, rebonds et boucles */
+@media (prefers-reduced-motion: reduce) {
+  .entre-avant, .entre-arriere, .correction.visible, .anneau, .gain, .etoiles.grandes span,
+  .choix.bonne, .choix.fausse { animation: fondu 200ms ease both !important; }
+  .etape.courant .medaillon::after, .eclats { display: none; }
+  .jauge > span { animation: none; }
 }
