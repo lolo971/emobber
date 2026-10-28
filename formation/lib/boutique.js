@@ -22,6 +22,7 @@ import { envoyer, ErreurHttp, lireCorps, lireJson, lireCookie } from './http.js'
 import { creerMagasin } from './stockage.js';
 import { creerStripe, verifierSignature } from './stripe.js';
 import { creerCourriel } from './courriel.js';
+import { fichierIcs, debutDe } from './agenda.js';
 import {
   normaliserOffre, verifierOffre, echeancier, commissionSur, euros, dateLisible,
   EMAIL_VALIDE, normaliserEmail, TYPES_OFFRE,
@@ -36,6 +37,8 @@ const DUREE_INVITATION = 30 * JOUR;
 // Stripe garde une page de paiement ouverte au moins 30 minutes : la place reste réservée autant.
 const DUREE_RESERVATION = 32 * 60 * 1000;
 const EVENEMENTS_GARDES = 1000;
+// Le rappel part dans les 26 heures qui précèdent le rendez-vous (vérification toutes les heures).
+const FENETRE_RAPPEL = 26 * 3600 * 1000;
 const ACTIVES = new Set(['payee', 'en-cours']);
 
 const hacher = (t) => createHash('sha256').update(String(t)).digest('hex');
@@ -114,6 +117,7 @@ export function creerBoutique(ctx) {
       dateLisible: dateLisible(o.date), duree: o.duree, lieu: o.lieu, prix: o.prix, prixLisible: euros(o.prix),
       echeances: o.echeances, paiement: o.paiement, placesRestantes: restantes, complet: restantes === 0,
       passee: passee(o), contact: o.contact, url: `${base(req)}/boutique/#/offre/${o.id}`,
+      agenda: o.date ? `${base(req)}/api/boutique/offres/${o.id}/agenda.ics` : '',
     };
   }
 
@@ -235,6 +239,7 @@ export function creerBoutique(ctx) {
         [dateLisible(c.offreDate), c.offreLieu].filter(Boolean).join(' · '),
         suite.length ? `Prochains versements : ${suite.map((x) => `${euros(x.montant)} le ${dateCourte(x.du)}`).join(', ')}, prélevés automatiquement sur la même carte.` : '',
         c.formations?.length ? 'Votre espace vous donne accès au module de formation lié à cette inscription.' : '',
+        c.offreDate ? `Ajouter à votre agenda : ${base(req)}/api/boutique/offres/${c.offre}/agenda.ics` : '',
       ], await lienConnexion(req, stagiaire.id, DUREE_LIEN_CONFIRMATION), 'Ouvrir mon espace');
       courriel.envoyer({ a: c.email, sujet: `Inscription confirmée : ${c.offreTitre}`, texte, html });
       if (config.adminCourriel) {
@@ -285,6 +290,64 @@ export function creerBoutique(ctx) {
 
   async function expirer(id) {
     await modifierCommande(id, (c) => { if (c.statut === 'en-attente') c.statut = 'expiree'; });
+    prevenirAttente().catch((e) => console.error('Liste d\'attente :', e));
+  }
+
+  // ---------- Rappels et liste d'attente ----------
+
+  // La veille : un e-mail de rappel à chaque inscrit (une seule fois par inscription).
+  async function envoyerRappels() {
+    const req = { headers: {}, socket: {} };
+    const offres = await lireOffres();
+    for (const c of await lireCommandes()) {
+      if (!ACTIVES.has(c.statut) || c.rappel) continue;
+      const o = offres.find((x) => x.id === c.offre);
+      const date = o?.date || c.offreDate;
+      const debut = debutDe(date);
+      if (!debut || debut <= Date.now() || debut - Date.now() > FENETRE_RAPPEL) continue;
+      // Inscrit au dernier moment : la confirmation vient de partir, pas besoin de rappel.
+      const inscrit = Date.parse(c.echeances[0]?.paye || c.creeLe);
+      const marque = inscrit > debut - FENETRE_RAPPEL ? 'inutile' : maintenant();
+      await modifierCommande(c.id, (cmd) => { cmd.rappel = marque; });
+      if (marque === 'inutile') continue;
+      const lieu = o?.lieu || c.offreLieu;
+      const { texte, html } = message([
+        `Bonjour ${c.nom},`,
+        `Petit rappel : « ${o?.titre || c.offreTitre} », c'est ${dateLisible(date)}.`,
+        lieu ? `Lieu : ${lieu}` : '',
+        'À très vite.',
+      ], `${base(req)}/boutique/#/compte`, 'Mon espace');
+      courriel.envoyer({ a: c.email, sujet: `Rappel : ${o?.titre || c.offreTitre}`, texte, html });
+    }
+  }
+
+  // Une place libre ? On prévient, dans l'ordre d'arrivée, autant de personnes que de places.
+  async function prevenirAttente() {
+    const req = { headers: {}, socket: {} };
+    const [offres, commandes, attente] = await Promise.all([lireOffres(), lireCommandes(), magasin.lire('attente', [])]);
+    const aPrevenir = [];
+    for (const o of offres) {
+      if (!o.publie || passee(o) || !o.places) continue;
+      const restantes = placesRestantes(o, commandes);
+      if (!restantes) continue;
+      const inscrits = new Set(commandes.filter((c) => c.offre === o.id && ACTIVES.has(c.statut)).map((c) => c.email));
+      attente.filter((a) => a.offre === o.id && !a.prevenuLe && !inscrits.has(a.email))
+        .sort((a, b) => a.creeLe.localeCompare(b.creeLe)).slice(0, restantes)
+        .forEach((a) => aPrevenir.push({ a, o }));
+    }
+    if (!aPrevenir.length) return;
+    const ids = new Set(aPrevenir.map(({ a }) => a.id));
+    await magasin.modifier('attente', [], (liste) => {
+      for (const a of liste) if (ids.has(a.id)) a.prevenuLe = maintenant();
+    });
+    for (const { a, o } of aPrevenir) {
+      const { texte, html } = message([
+        `Bonjour ${a.nom},`,
+        `Une place vient de se libérer pour « ${o.titre} » (${dateLisible(o.date)}).`,
+        'Elle revient à la première personne qui la réserve.',
+      ], `${base(req)}/boutique/#/offre/${o.id}`, 'Réserver ma place');
+      courriel.envoyer({ a: a.email, sujet: `Une place s'est libérée : ${o.titre}`, texte, html });
+    }
   }
 
   // Au retour du stagiaire, si le webhook n'est pas encore passé, on demande directement à Stripe.
@@ -491,10 +554,11 @@ export function creerBoutique(ctx) {
     }
 
     if (req.method === 'GET' && chemin === '/api/admin/boutique/offres') {
-      const [offres, commandes] = await Promise.all([lireOffres(), lireCommandes()]);
+      const [offres, commandes, attente] = await Promise.all([lireOffres(), lireCommandes(), magasin.lire('attente', [])]);
       return envoyer(res, 200, offres.sort(ordreOffres).map((o) => ({
         ...o,
         inscrits: commandes.filter((c) => c.offre === o.id && ACTIVES.has(c.statut)).length,
+        enAttente: attente.filter((a) => a.offre === o.id && !a.prevenuLe).length,
         placesRestantes: placesRestantes(o, commandes),
       })));
     }
@@ -520,6 +584,7 @@ export function creerBoutique(ctx) {
         const formations = new Set((await ctx.listerFormations()).map((f) => f.id));
         offre.formations = offre.formations.filter((f) => formations.has(f));
         await magasin.modifier('offres', [], (liste) => { liste[liste.findIndex((o) => o.id === id)] = offre; });
+        prevenirAttente().catch((e) => console.error('Liste d\'attente :', e));
         return envoyer(res, 200, offre);
       }
       if (req.method === 'DELETE') {
@@ -550,6 +615,18 @@ export function creerBoutique(ctx) {
       });
     }
 
+    if (req.method === 'GET' && chemin === '/api/admin/boutique/attente') {
+      const attente = await magasin.lire('attente', []);
+      return envoyer(res, 200, attente.sort((a, b) => a.creeLe.localeCompare(b.creeLe)));
+    }
+    if (req.method === 'DELETE' && (p = m(/^\/api\/admin\/boutique\/attente\/([a-z0-9-]+)$/))) {
+      await magasin.modifier('attente', [], (liste) => {
+        const i = liste.findIndex((a) => a.id === p[1]);
+        if (i === -1) throw new ErreurHttp(404, 'Personne introuvable dans la liste.');
+        liste.splice(i, 1);
+      });
+      return envoyer(res, 200, { retire: true });
+    }
     if (req.method === 'GET' && chemin === '/api/admin/boutique/invitations') {
       const invitations = await magasin.lire('invitations', []);
       return envoyer(res, 200, invitations.filter((i) => !i.annuleeLe).sort((a, b) => b.creeLe.localeCompare(a.creeLe))
@@ -627,6 +704,7 @@ export function creerBoutique(ctx) {
         }
       });
       if (action === 'relancer') preleverEcheances().catch((e) => console.error(e));
+      if (action === 'retirer') prevenirAttente().catch((e) => console.error('Liste d\'attente :', e));
       const { cle, stripeClient, stripeMoyen, ...publique } = maj;
       return envoyer(res, 200, publique);
     }
@@ -662,6 +740,47 @@ export function creerBoutique(ctx) {
       envoyer(res, 200, offrePublique(o, commandes, req));
       return true;
     }
+    // Fichier d'agenda : offre publiée, ou offre à laquelle le visiteur connecté est inscrit.
+    if (req.method === 'GET' && (p = m(/^\/api\/boutique\/offres\/([a-z0-9-]+)\/agenda\.ics$/))) {
+      const o = (await lireOffres()).find((x) => x.id === p[1]);
+      let permis = o?.publie;
+      if (o && !permis) {
+        const moi = await stagiaireConnecte(req);
+        permis = Boolean(moi) && (await lireCommandes()).some((c) => c.offre === o.id && c.stagiaire === moi.id && ACTIVES.has(c.statut));
+      }
+      if (!o || !permis || !o.date) throw new ErreurHttp(404, 'Rendez-vous introuvable.');
+      const corps = fichierIcs({
+        uid: `${o.id}@${new URL(base(req)).hostname}`, titre: `${o.titre} — ${config.nom}`, date: o.date,
+        duree: o.duree, lieu: o.lieu, description: o.resume, url: `${base(req)}/boutique/#/offre/${o.id}`,
+      });
+      res.writeHead(200, {
+        'Content-Type': 'text/calendar; charset=utf-8',
+        'Content-Disposition': `attachment; filename="${o.id}.ics"`,
+        'Cache-Control': 'no-store',
+        'X-Content-Type-Options': 'nosniff',
+      });
+      res.end(corps);
+      return true;
+    }
+    if (req.method === 'POST' && (p = m(/^\/api\/boutique\/offres\/([a-z0-9-]+)\/attente$/))) {
+      exigerOrigine(req);
+      limiter(req, 'attente', 5, 15 * 60 * 1000);
+      const o = (await lireOffres()).find((x) => x.id === p[1] && x.publie);
+      if (!o || passee(o)) throw new ErreurHttp(404, 'Cette offre n\'existe pas ou n\'est plus proposée.');
+      if (placesRestantes(o, await lireCommandes()) !== 0) throw new ErreurHttp(409, 'Il reste des places : vous pouvez réserver directement.');
+      const corps = await lireJson(req);
+      const email = normaliserEmail(corps.email);
+      const nom = typeof corps.nom === 'string' ? corps.nom.trim().slice(0, 120) : '';
+      if (!nom) throw new ErreurHttp(400, 'Indiquez votre nom.');
+      if (!EMAIL_VALIDE.test(email)) throw new ErreurHttp(400, 'Adresse e-mail invalide.');
+      const rang = await magasin.modifier('attente', [], (liste) => {
+        const deja = liste.find((a) => a.offre === o.id && a.email === email && !a.prevenuLe);
+        if (!deja) liste.push({ id: `a-${randomBytes(6).toString('hex')}`, offre: o.id, offreTitre: o.titre, email, nom, creeLe: maintenant() });
+        return liste.filter((a) => a.offre === o.id && !a.prevenuLe).findIndex((a) => a.email === email) + 1;
+      });
+      envoyer(res, 201, { inscrit: true, rang });
+      return true;
+    }
     if (req.method === 'GET' && (p = m(/^\/api\/boutique\/invitations\/([A-Za-z0-9_-]+)$/))) {
       const inv = (await magasin.lire('invitations', [])).find((x) => x.jeton === p[1]);
       const o = inv && (await lireOffres()).find((x) => x.id === inv.offre);
@@ -684,7 +803,8 @@ export function creerBoutique(ctx) {
       c = await commandeAvecCle(p[1], url.searchParams.get('cle'));
       const moi = await stagiaireConnecte(req);
       envoyer(res, 200, {
-        statut: c.statut, offre: c.offreTitre, date: dateLisible(c.offreDate), lieu: c.offreLieu,
+        statut: c.statut, offre: c.offreTitre, offreId: c.offre, date: dateLisible(c.offreDate), lieu: c.offreLieu,
+        agenda: c.offreDate && ACTIVES.has(c.statut) ? `${base(req)}/api/boutique/offres/${c.offre}/agenda.ics` : '',
         total: c.total, versements: versementsPublics(c), email: c.email, nom: c.nom,
         formations: ACTIVES.has(c.statut) ? await formationsTitrees(c.formations || []) : [],
         connecte: Boolean(moi && moi.id === c.stagiaire), compteCree: Boolean(c.compteCree),
@@ -725,8 +845,9 @@ export function creerBoutique(ctx) {
       envoyer(res, 200, {
         connecte: true, nom: moi.nom, email: moi.email,
         inscriptions: commandes.sort((a, b) => (a.offreDate || '9999').localeCompare(b.offreDate || '9999')).map((c) => ({
-          offre: c.offreTitre, date: dateLisible(c.offreDate), lieu: c.offreLieu, statut: c.statut,
+          offre: c.offreTitre, offreId: c.offre, date: dateLisible(c.offreDate), lieu: c.offreLieu, statut: c.statut,
           total: c.total, versements: versementsPublics(c),
+          agenda: c.offreDate && ACTIVES.has(c.statut) ? `${base(req)}/api/boutique/offres/${c.offre}/agenda.ics` : '',
         })),
         formations: await formationsTitrees([...(await formationsDe(moi))]),
       });
@@ -771,7 +892,11 @@ export function creerBoutique(ctx) {
   }
 
   function demarrer() {
-    const tic = () => preleverEcheances().catch((e) => console.error('Prélèvements :', e));
+    const tic = () => {
+      preleverEcheances().catch((e) => console.error('Prélèvements :', e));
+      envoyerRappels().catch((e) => console.error('Rappels :', e));
+      prevenirAttente().catch((e) => console.error('Liste d\'attente :', e));
+    };
     setTimeout(tic, 30 * 1000).unref();
     setInterval(tic, 3600 * 1000).unref();
     const etat = { aucun: 'paiement en ligne fermé (offres gratuites seulement)', simulation: 'paiements SIMULÉS', test: 'Stripe en mode test', reel: 'Stripe en mode réel' }[modePaiement];

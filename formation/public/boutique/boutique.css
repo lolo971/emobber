@@ -111,6 +111,9 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px va
 .inscription h3 { font-size: 1rem; margin: 0 0 .2rem; }
 
 .boutons { display: grid; gap: .6rem; margin-top: 1.2rem; }
+.boutons:empty { display: none; }
+.page > .bouton.large { margin-top: .4rem; }
+.lien-agenda { display: inline-block; margin-top: .5rem; font: 600 11px/1.8 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gold-clair); text-decoration: none; }
 .simulation { border-color: rgba(194, 89, 63, .45); background: var(--ember-soft); }
 
 #toast {

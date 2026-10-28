@@ -76,7 +76,7 @@ export function dateLisible(date) {
   const [j, h] = date.split('T');
   const [a, m, d] = j.split('-').map(Number);
   const jour = new Date(Date.UTC(a, m - 1, d)).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
-  return h ? `${jour} à ${h.replace(':', ' h ')}` : jour;
+  return h ? `${jour} à ${h.replace(':', '\u00a0h\u00a0')}` : jour; // espaces insécables : « 19 h 00 » ne se coupe pas
 }
 
 export const EMAIL_VALIDE = /^[^\s@<>()",;:]{1,64}@[^\s@<>()",;:]+\.[^\s@<>()",;:]{2,}$/;

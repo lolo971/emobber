@@ -128,6 +128,9 @@ rsync -a pi@raspberrypi.local:/var/lib/akasha-formation/ ~/sauvegardes/akasha-fo
 - **Paiement** : Stripe Connect, charges directes sur le compte de Maât Soby, commission de la plateforme prélevée sur
   chaque paiement (`application_fee_amount`, 10 % par défaut). En 3 fois : le 1er versement par Stripe Checkout, la carte
   est gardée, les versements 2 et 3 sont prélevés automatiquement à un et deux mois (contrôle toutes les heures).
+- **Agenda, rappels, liste d'attente** : bouton « Ajouter à mon agenda » (fichier `.ics`, alarme la veille) sur la
+  fiche, la confirmation, l'e-mail et l'espace stagiaire ; rappel par e-mail dans les 26 h qui précèdent le rendez-vous ;
+  quand c'est complet, liste d'attente : dès qu'une place se libère, les premières personnes sont prévenues par e-mail.
 - **Pour le site de Maât Soby** : `GET /api/boutique/offres` (JSON, lisible depuis `https://maatsoby.nubitech.org`),
   chaque offre a une adresse `url` vers sa fiche de réservation.
 

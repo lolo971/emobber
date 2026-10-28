@@ -49,7 +49,8 @@ export async function vueOffres() {
               el('span', { class: `pastille ${x.publie ? 'publie' : ''}` }, x.publie ? 'Publiée' : 'Brouillon'),
               ` · ${TYPES_OFFRE[x.type]} · ${x.prix ? euros(x.prix) : 'gratuit'}${x.echeances === 3 ? ' (3×)' : ''}`,
               x.date ? ` · ${dateLisible(x.date)}` : '',
-              ` · ${x.inscrits} inscrit${x.inscrits > 1 ? 's' : ''}${x.places ? ` / ${x.places}` : ''}`)),
+              ` · ${x.inscrits} inscrit${x.inscrits > 1 ? 's' : ''}${x.places ? ` / ${x.places}` : ''}`,
+              x.enAttente ? ` · ${x.enAttente} en liste d'attente` : '')),
           el('div', { class: 'boutons-ligne' },
             el('a', { class: 'bouton secondaire petit', href: `#/o/${x.id}` }, 'Modifier'),
             x.publie && el('a', { class: 'bouton discret petit', href: `../boutique/#/offre/${x.id}`, target: '_blank', rel: 'noopener' }, 'Voir'))))),
@@ -201,9 +202,34 @@ export async function vueOffre(id) {
         el('div', { class: 'boutons-ligne', style: 'margin-top:1rem' },
           el('button', { type: 'button', class: 'bouton', onclick: enregistrer }, 'Enregistrer'),
           el('button', { type: 'button', class: 'bouton danger petit', onclick: supprimer }, 'Supprimer l\'offre'))),
+      await sectionAttente(x),
       await sectionInvitations(x),
       sectionHorsLigne(x)));
   recalculer();
+}
+
+async function sectionAttente(x) {
+  const { el, api } = o;
+  const attente = (await api('GET', 'admin/boutique/attente')).filter((a) => a.offre === x.id);
+  if (!attente.length) return null;
+  const zone = el('ul', { class: 'liste-simple' });
+  const rendre = (liste) => zone.replaceChildren(...liste.map((a, i) => el('li', {},
+    el('div', {}, el('strong', {}, `${i + 1}. ${a.nom}`), ` · ${a.email}`, el('br'),
+      el('span', { class: 'aide' }, a.prevenuLe ? `prévenu·e le ${new Date(a.prevenuLe).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}`
+        : `en attente depuis le ${new Date(a.creeLe).toLocaleDateString('fr-FR')}`)),
+    el('button', { type: 'button', class: 'bouton discret petit', onclick: async () => {
+      if (!confirm(`Retirer ${a.nom} de la liste d'attente ?`)) return;
+      try {
+        await api('DELETE', `admin/boutique/attente/${a.id}`);
+        liste.splice(liste.indexOf(a), 1);
+        rendre(liste);
+      } catch (e) { o.annoncer(e.message, 'erreur'); }
+    } }, 'Retirer'))));
+  rendre(attente);
+  return el('section', { class: 'carte-edition' },
+    el('h2', {}, 'Liste d\'attente'),
+    el('p', { class: 'aide' }, 'Quand une place se libère (paiement abandonné, accès retiré, places ajoutées), les premières personnes sont prévenues par e-mail automatiquement.'),
+    zone);
 }
 
 async function sectionInvitations(x) {

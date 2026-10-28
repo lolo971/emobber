@@ -171,6 +171,41 @@ function formulaire({ prix, echeances, email, nom, envoyer, libelle }) {
   prix > 0 && el('p', { class: 'securite' }, ico('cadenas'), `Paiement sécurisé par Stripe, au nom de ${NOM}`));
 }
 
+// Bouton « Ajouter à mon agenda » : le téléphone ouvre le fichier .ics dans son calendrier.
+function boutonAgenda(url) {
+  return url ? el('a', { class: 'bouton secondaire large', href: url, download: true }, 'Ajouter à mon agenda') : null;
+}
+
+function listeAttente(o) {
+  const champNom = el('input', { type: 'text', id: 'nom-attente', autocomplete: 'name', maxlength: 120 });
+  const champEmail = el('input', { type: 'email', id: 'email-attente', autocomplete: 'email', inputmode: 'email', maxlength: 200 });
+  const message = el('p', { class: 'message-erreur', role: 'alert' });
+  const bouton = el('button', { class: 'bouton large', type: 'submit' }, 'Me prévenir');
+  return el('form', {
+    class: 'carte', novalidate: true,
+    onsubmit: async (e) => {
+      e.preventDefault();
+      message.textContent = '';
+      if (!champNom.value.trim()) { message.textContent = 'Indiquez votre nom.'; champNom.focus(); return; }
+      if (!EMAIL_VALIDE.test(champEmail.value.trim().toLowerCase())) { message.textContent = 'Vérifiez votre adresse e-mail.'; champEmail.focus(); return; }
+      bouton.disabled = true;
+      try {
+        const { rang } = await api('POST', `boutique/offres/${o.id}/attente`, { nom: champNom.value, email: champEmail.value });
+        e.target.replaceChildren(el('h2', {}, 'Vous êtes sur la liste d\'attente'),
+          el('p', {}, `Vous êtes ${rang === 1 ? 'la première personne' : `n° ${rang}`} sur la liste. Si une place se libère, un e-mail part aussitôt à ${champEmail.value.trim()} : la place revient à la première personne qui la réserve.`));
+      } catch (erreurEnvoi) {
+        message.textContent = erreurEnvoi.message;
+        bouton.disabled = false;
+      }
+    },
+  },
+  el('h2', {}, 'C\'est complet'),
+  el('p', { class: 'aide' }, 'Laissez votre adresse : vous serez prévenu·e dès qu\'une place se libère.'),
+  el('label', { class: 'champ' }, el('span', { class: 'etiquette' }, 'Prénom et nom'), champNom),
+  el('label', { class: 'champ' }, el('span', { class: 'etiquette' }, 'E-mail'), champEmail),
+  message, bouton);
+}
+
 function infos(o) {
   return el('ul', { class: 'infos' },
     o.dateLisible && el('li', {}, el('span', { class: 'etiquette' }, 'Quand'), el('span', {}, o.dateLisible)),
@@ -189,7 +224,7 @@ async function vueOffre(id) {
       el('p', {}, `Cet accompagnement commence par un premier échange avec ${NOM}. Vous recevrez ensuite un lien personnel pour confirmer votre inscription.`),
       o.contact && el('a', { class: 'bouton large', href: o.contact, target: '_blank', rel: 'noopener' }, 'Prendre contact'));
   } else if (o.complet) {
-    action = el('div', { class: 'carte' }, el('h2', {}, 'C\'est complet'), el('p', { class: 'aide' }, 'Toutes les places sont réservées pour cette date.'));
+    action = listeAttente(o);
   } else {
     action = formulaire({
       prix: o.prix, echeances: o.echeances, libelle: 'Confirmer mon inscription',
@@ -203,7 +238,8 @@ async function vueOffre(id) {
     meta(o, false),
     infos(o),
     o.description && el('p', { class: 'description' }, o.description),
-    action));
+    action,
+    !o.complet && boutonAgenda(o.agenda)));
 }
 
 async function vueInvitation(jeton) {
@@ -282,6 +318,7 @@ async function vueMerci(id, cle, essai = 0) {
     el('p', {}, [c.date, c.lieu].filter(Boolean).join(' · ')),
     el('p', { class: 'intro' }, `Merci ${c.nom}. Une confirmation part à ${c.email}.`),
     listeVersements(c.versements),
+    el('div', { class: 'boutons' }, boutonAgenda(c.agenda)),
     c.formations.length > 0 && el('div', { class: 'carte' },
       el('h2', {}, 'Votre accès est ouvert'),
       el('ul', { class: 'liste-acces' }, c.formations.map((f) => el('li', {},
@@ -311,7 +348,8 @@ async function vueCompte() {
           el('h3', {}, i.offre),
           el('p', { class: 'aide' }, [i.date, i.lieu].filter(Boolean).join(' · '),
             i.statut === 'retiree' ? ' · annulée' : ''),
-          listeVersements(i.versements)))
+          listeVersements(i.versements),
+          i.agenda && el('a', { class: 'lien-agenda', href: i.agenda, download: true }, '＋ Ajouter à mon agenda')))
         : el('p', { class: 'aide' }, 'Pas encore d\'inscription.'),
       el('a', { class: 'bouton secondaire large', href: '#/' }, 'Voir les rendez-vous')),
     el('button', { class: 'bouton discret large', type: 'button', onclick: async () => {
