@@ -116,6 +116,7 @@
   background: var(--basalt); border: 1px solid var(--hairline); border-radius: var(--rayon);
   padding: 1.3rem 1.2rem; animation: arrivee .35s ease both;
 }
+.carte-lecon > :first-child { margin-top: 0; }
 @keyframes arrivee { from { opacity: 0; transform: translateY(10px); } }
 
 .barre-action {

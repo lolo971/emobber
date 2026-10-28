@@ -8,6 +8,7 @@ const PERMIS = new Set(['P', 'H3', 'H4', 'STRONG', 'EM', 'U', 'UL', 'OL', 'LI', 
   'FIGCAPTION', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'BR', 'BLOCKQUOTE', 'CODE', 'PRE', 'DIV', 'HR']);
 const BLOCS = new Set(['P', 'H3', 'H4', 'UL', 'OL', 'TABLE', 'FIGURE', 'BLOCKQUOTE', 'PRE', 'DIV', 'HR']);
 export const CLASSES_ENCADRE = ['encadre', 'exemple', 'attention'];
+const CLASSES_PARAGRAPHE = ['essence', 'registre'];
 
 const LIEN_PERMIS = /^(https?:|mailto:|#)/i;
 const IMAGE_PERMISE = /^(medias\/[a-z0-9-]+\.(png|jpe?g|webp|gif)|https:\/\/)/i;
@@ -28,12 +29,17 @@ function nettoyerAttributs(el) {
       (tag === 'IMG' && name === 'alt') ||
       ((tag === 'TD' || tag === 'TH') && (name === 'colspan' || name === 'rowspan') && /^\d{1,2}$/.test(value)) ||
       (tag === 'DIV' && name === 'class') ||
+      (tag === 'P' && name === 'class') ||
       (tag === 'HR' && name === 'class');
     if (!garder) el.removeAttribute(name);
   }
   if (tag === 'A' && el.hasAttribute('href') && /^https?:/i.test(el.getAttribute('href'))) {
     el.setAttribute('target', '_blank');
     el.setAttribute('rel', 'noopener noreferrer');
+  }
+  if (tag === 'P' && el.hasAttribute('class')) {
+    const classe = CLASSES_PARAGRAPHE.find((c) => el.classList.contains(c));
+    if (classe) el.className = classe; else el.removeAttribute('class');
   }
   if (tag === 'IMG' && !el.hasAttribute('src')) el.remove();
 }

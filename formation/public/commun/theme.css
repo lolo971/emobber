@@ -107,6 +107,15 @@ img { max-width: 100%; height: auto; }
 .contenu-lecon > :last-child, .contenu-lecon .encadre > :last-child,
 .contenu-lecon .exemple > :last-child, .contenu-lecon .attention > :last-child { margin-bottom: 0; }
 
+.contenu-lecon .essence {
+  font: italic 1.2rem/1.5 var(--f-corps); color: var(--gold-clair);
+  margin: 0 0 1.4rem; padding-bottom: 1rem; border-bottom: 1px solid var(--hairline);
+}
+.contenu-lecon .registre {
+  font: 500 10px var(--f-mono); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--bone-dim); margin: -.4rem 0 .8rem;
+}
+
 @keyframes ak-respire {
   0%, 100% { box-shadow: 0 0 0 0 rgba(184, 149, 91, .45); }
   50% { box-shadow: 0 0 0 12px rgba(184, 149, 91, 0); }
