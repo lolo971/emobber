@@ -75,6 +75,13 @@ Format JSON complet et règles de publication : `public/commun/valider.js`
   back-office (créer, éditer, publier) et le parcours apprenant à 390 px (leçon, quiz
   raté puis réussi, déblocage, révision).
 
+## Skills d'interface disponibles
+
+Pour l'ergonomie, l'accessibilité, le responsive et les conventions mobiles, s'appuyer sur
+`ui-ux-pro-max`, `frontend-design`, `responsive-design`, `accessibility-compliance`,
+`mobile-ios-design` et `mobile-android-design` — **toujours subordonnés à l'identité AKASHA**
+(voir `.claude/skills/SOURCES.md`, « Ordre de priorité »).
+
 ## Publier sur le Pi
 
 `deploy/deployer-pi.sh [utilisateur@hote]` copie le code et redémarre le service ; il ne
