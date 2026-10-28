@@ -1,0 +1,559 @@
+{
+  "id": "orishas",
+  "titre": "Les Orishas",
+  "sousTitre": "Les puissances yoruba, d'Ifẹ̀ à La Havane et Salvador.",
+  "description": "Sept niveaux pour découvrir les orishas : leur place dans la religion yoruba, les grandes figures (Èṣù, Ògún, Ṣàngó, Ọ̀ṣun, Yemọja, Ọbàtálá), Ifá, et leur traversée de l'Atlantique. Brouillon sourcé, à valider.",
+  "image": "",
+  "seuil": 80,
+  "publie": false,
+  "modifieLe": "2026-10-28T12:32:06.409Z",
+  "niveaux": [
+    {
+      "id": "que-sont-les-orishas",
+      "titre": "Que sont les Orishas ?",
+      "resume": "Olódùmarè, les orishas, l'àṣẹ, les noms multiples.",
+      "lecon": "<p>Les <strong>orishas</strong> (<em>òrìṣà</em>) sont les divinités de la religion des Yoruba, peuple d'Afrique de l'Ouest (sud-ouest du Nigeria, Bénin).</p>\n<p>Au sommet se tient <strong>Olódùmarè</strong>, l'être suprême, souvent décrit comme lointain. Les orishas sont les <strong>intermédiaires</strong> qu'on approche directement.</p>\n<div class=\"encadre\"><p>Olódùmarè est le principe suprême ; les orishas sont les puissances proches, chacune liée à un domaine de la nature et de la vie humaine.</p></div>\n<hr class=\"etape\">\n<h3>L'àṣẹ</h3>\n<p>L'<strong>àṣẹ</strong> désigne la puissance qui fait advenir les choses : la force vitale que l'on reçoit, que l'on transmet, que l'on invoque. Robert Farris Thompson en a fait une notion clé de son livre <em>Flash of the Spirit</em> (1983).</p>\n<hr class=\"etape\">\n<h3>Un orisha, plusieurs noms</h3>\n<p>Avec la traite atlantique, le culte des orishas a traversé l'océan : <strong>Regla de Ocha</strong> (ou Santería) à Cuba, <strong>Candomblé</strong> au Brésil. Chaque tradition prononce et écrit les noms à sa façon.</p>\n<table><thead><tr><th>Yoruba</th><th>Cuba</th><th>Brésil</th></tr></thead><tbody>\n<tr><td>Èṣù</td><td>Elegguá</td><td>Exu</td></tr>\n<tr><td>Ṣàngó</td><td>Changó</td><td>Xangô</td></tr>\n<tr><td>Yemọja</td><td>Yemayá</td><td>Iemanjá</td></tr>\n<tr><td>Ọ̀ṣun</td><td>Ochún</td><td>Oxum</td></tr></tbody></table>\n<div class=\"attention\"><p>Même nom ne veut pas dire mêmes croyances : ce qui vaut au Nigeria ne vaut pas forcément à Cuba ou au Brésil. On précise toujours de quelle tradition on parle.</p></div>\n<hr class=\"etape\">\n<h3>Sources</h3>\n<p><em>Brouillon à vérifier : chaque point attend la relecture de Laurent avant publication.</em></p>\n<ul><li>Encyclopædia Britannica, notices « Shango » et « Yemonja ».</li><li>R. F. Thompson, <em>Flash of the Spirit: African and Afro-American Art and Philosophy</em>, 1983 (définition de l'àṣẹ à recouper dans le livre).</li><li>World History Encyclopedia, « Orisha » (hiérarchie Olódùmarè → orishas).</li></ul>",
+      "questions": [
+        {
+          "id": "supreme",
+          "enonce": "Qui est l'être suprême de la religion yoruba ?",
+          "image": "",
+          "choix": [
+            "Olódùmarè",
+            "Ṣàngó",
+            "Èṣù"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Olódùmarè est le principe suprême, souvent décrit comme lointain ; les orishas sont les intermédiaires."
+        },
+        {
+          "id": "role",
+          "enonce": "Quel rôle tiennent les orishas vis-à-vis d'Olódùmarè ?",
+          "image": "",
+          "choix": [
+            "Ils le remplacent",
+            "Ce sont des intermédiaires qu'on approche directement",
+            "Ce sont ses ennemis"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "On s'adresse aux orishas, puissances proches, plutôt qu'à l'être suprême lointain."
+        },
+        {
+          "id": "ase",
+          "enonce": "Que désigne l'àṣẹ ?",
+          "image": "",
+          "choix": [
+            "Un instrument de musique",
+            "La puissance qui fait advenir les choses",
+            "Le nom d'une ville sainte"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "L'àṣẹ est la force vitale qu'on reçoit, transmet et invoque."
+        },
+        {
+          "id": "diaspora",
+          "enonce": "Quelles traditions de la diaspora rendent un culte aux orishas ?",
+          "image": "",
+          "choix": [
+            "La Regla de Ocha (Santería) à Cuba",
+            "Le Candomblé au Brésil",
+            "Le shintoïsme au Japon"
+          ],
+          "bonnes": [
+            0,
+            1
+          ],
+          "explication": "Le shintoïsme est une tradition japonaise sans lien avec les orishas."
+        },
+        {
+          "id": "noms",
+          "enonce": "Ṣàngó, Changó et Xangô sont…",
+          "image": "",
+          "choix": [
+            "trois orishas différents",
+            "le même orisha nommé selon trois traditions",
+            "trois rois d'Ọ̀yọ́"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Un orisha, plusieurs noms : yoruba, cubain, brésilien. Mais les croyances peuvent différer d'une tradition à l'autre."
+        }
+      ]
+    },
+    {
+      "id": "esu-elegua",
+      "titre": "Èṣù · Elegguá, le gardien du seuil",
+      "resume": "Le carrefour, le messager, le premier invoqué.",
+      "lecon": "<p><strong>Èṣù</strong> (Elegguá à Cuba, Exu au Brésil) est l'orisha du <strong>carrefour</strong>, du <strong>seuil</strong> et du <strong>hasard</strong>. Il est le <strong>messager</strong> entre les humains et les autres puissances, et celui qui fait respecter la loi divine.</p>\n<div class=\"encadre\"><p>Èṣù ouvre ou ferme les chemins. C'est pourquoi on l'invoque en premier.</p></div>\n<hr class=\"etape\">\n<h3>Le rusé</h3>\n<p>Èṣù est aussi un <strong>trickster</strong> : il éprouve, il déjoue, il punit de façon détournée. Il n'est ni bon ni mauvais : il veille à ce que les offrandes et les promesses soient tenues.</p>\n<hr class=\"etape\">\n<h3>Pas le diable</h3>\n<div class=\"attention\"><p>Èṣù <strong>n'est pas Satan</strong>. L'assimilation vient des traductions missionnaires du XIXᵉ siècle : le <em>Vocabulary of the Yoruba Language</em> de Samuel Ajayi Crowther (1842) glose « Satan » et « devil » par Èṣù. La culture yoruba ne connaissait ni l'enfer ni le diable.</p></div>\n<p>Les intentions de Crowther restent débattues ; le contresens, lui, a durablement marqué l'image d'Èṣù.</p>\n<hr class=\"etape\">\n<h3>Un pont, pas une identité</h3>\n<p>AKASHA rapproche Elegua de <strong>Ganesh</strong>, l'hindou : tous deux gardent le seuil et sont invoqués les premiers.</p>\n<div class=\"exemple\"><p><strong>Point commun :</strong> le gardien du seuil, premier invoqué.<br><strong>Différence :</strong> Ganesh écarte l'obstacle ; Elegua est le trickster du carrefour. Parallèle de fonction, sans filiation.</p></div>\n<hr class=\"etape\">\n<h3>Sources</h3>\n<p><em>Brouillon à vérifier : chaque point attend la relecture de Laurent avant publication.</em></p>\n<ul><li>Notice « Eshu », Wikipedia anglophone (glose de Crowther, 1842 ; à recouper dans le <em>Vocabulary</em> lui-même).</li><li>Oriire, « Esu: rethinking the “Satan” label in Yoruba thought ».</li><li>AKASHA, pont Ganesh → Elegua (#799), fondement « proposée » : parallèle de fonction.</li></ul>",
+      "questions": [
+        {
+          "id": "domaine",
+          "enonce": "De quoi Èṣù est-il l'orisha ?",
+          "image": "",
+          "choix": [
+            "Du carrefour et du seuil",
+            "Du tonnerre",
+            "De la mer"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Èṣù garde le carrefour et le seuil ; le tonnerre est à Ṣàngó, la mer à Yemọja en diaspora."
+        },
+        {
+          "id": "premier",
+          "enonce": "Pourquoi invoque-t-on Èṣù en premier ?",
+          "image": "",
+          "choix": [
+            "Parce qu'il est le plus ancien",
+            "Parce qu'il ouvre ou ferme les chemins",
+            "Parce qu'il est l'être suprême"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Messager et gardien du seuil, il conditionne le passage vers les autres puissances."
+        },
+        {
+          "id": "satan",
+          "enonce": "D'où vient l'assimilation d'Èṣù au diable ?",
+          "image": "",
+          "choix": [
+            "De la mythologie yoruba ancienne",
+            "Des traductions missionnaires du XIXᵉ siècle",
+            "Du Candomblé brésilien"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Le vocabulaire de Crowther (1842) glose « Satan » par Èṣù ; la culture yoruba ne connaissait pas le diable."
+        },
+        {
+          "id": "trickster",
+          "enonce": "Quelles affirmations sur Èṣù sont justes ?",
+          "image": "",
+          "choix": [
+            "Il est messager",
+            "Il est un trickster qui éprouve et déjoue",
+            "Il est le mal absolu"
+          ],
+          "bonnes": [
+            0,
+            1
+          ],
+          "explication": "Il n'est ni bon ni mauvais : il fait respecter la loi divine et les engagements."
+        },
+        {
+          "id": "ganesh",
+          "enonce": "Elegua et Ganesh sont…",
+          "image": "",
+          "choix": [
+            "la même divinité sous deux noms",
+            "rapprochés par un parallèle de fonction, sans filiation",
+            "sans aucun point commun"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Tous deux gardent le seuil et sont invoqués en premier ; mais l'un écarte l'obstacle, l'autre est le trickster du carrefour."
+        }
+      ]
+    },
+    {
+      "id": "ogun",
+      "titre": "Ògún, le fer qui ouvre la voie",
+      "resume": "Le fer, la guerre, la chasse, le chemin ouvert.",
+      "lecon": "<p><strong>Ògún</strong> est d'abord l'orisha du <strong>fer</strong> et, par extension, de la <strong>guerre</strong> et de la <strong>chasse</strong>.</p>\n<p>Il est le patron des <strong>forgerons</strong> et de tous ceux qui travaillent le métal.</p>\n<hr class=\"etape\">\n<h3>Celui qui ouvre le chemin</h3>\n<p>Selon certaines traditions, quand les orishas descendirent sur terre, c'est Ògún qui leur <strong>ouvrit la voie</strong> à travers la brousse, avec une hache de métal.</p>\n<div class=\"encadre\"><p>Le fer est l'outil qui défriche : Ògún est la force qui rend le passage possible.</p></div>\n<hr class=\"etape\">\n<h3>Partout dans l'Atlantique noir</h3>\n<p>Ògún est honoré dans la religion yoruba, la Santería (Ogún), le Candomblé (Ogum), l'Umbanda et le Vodou haïtien (Ogou).</p>\n<div class=\"attention\"><p>Ne pas confondre <strong>Ògún</strong>, l'orisha du fer, et <strong>Ògùn</strong>, la rivière du pays yoruba liée à Yemọja. L'écriture courante sans accents (« Ogun ») efface la différence.</p></div>\n<hr class=\"etape\">\n<h3>Sources</h3>\n<p><em>Brouillon à vérifier : chaque point attend la relecture de Laurent avant publication.</em></p>\n<ul><li>Notice « Ogun », Wikipedia anglophone, et Encyclopedia of African Religion (SAGE), entrée « Ogun » : fer, guerre, chasse ; patron des forgerons.</li><li>Tradition du chemin ouvert à la hache : « dans certaines traditions » selon ces mêmes sources — à recouper.</li><li>Distinction Ògún / Ògùn (tons) : à confirmer par un dictionnaire yoruba.</li></ul>",
+      "questions": [
+        {
+          "id": "fer",
+          "enonce": "Ògún est d'abord l'orisha…",
+          "image": "",
+          "choix": [
+            "du fer",
+            "de l'eau douce",
+            "de la divination"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Le fer d'abord ; la guerre et la chasse par extension."
+        },
+        {
+          "id": "patron",
+          "enonce": "De qui Ògún est-il le patron ?",
+          "image": "",
+          "choix": [
+            "Des forgerons et de ceux qui travaillent le métal",
+            "Des pêcheurs",
+            "Des devins"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Les pêcheurs se tournent plutôt vers Yemọja ; les devins vers Ọ̀rúnmìlà."
+        },
+        {
+          "id": "chemin",
+          "enonce": "Selon certaines traditions, qu'a fait Ògún quand les orishas sont descendus sur terre ?",
+          "image": "",
+          "choix": [
+            "Il a créé les corps humains",
+            "Il leur a ouvert la voie avec une hache de métal",
+            "Il a déclenché l'orage"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Façonner les corps revient à Ọbàtálá ; l'orage à Ṣàngó."
+        },
+        {
+          "id": "diaspora",
+          "enonce": "Sous quels noms retrouve-t-on Ògún ?",
+          "image": "",
+          "choix": [
+            "Ogum au Brésil",
+            "Ogou en Haïti",
+            "Yemayá à Cuba"
+          ],
+          "bonnes": [
+            0,
+            1
+          ],
+          "explication": "Yemayá est le nom cubain de Yemọja."
+        },
+        {
+          "id": "riviere",
+          "enonce": "Ògùn (la rivière) et Ògún (l'orisha du fer) sont…",
+          "image": "",
+          "choix": [
+            "le même mot",
+            "deux mots distincts que l'écriture sans accents confond"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "La rivière est liée à Yemọja ; l'orisha du fer est Ògún."
+        }
+      ]
+    },
+    {
+      "id": "sango",
+      "titre": "Ṣàngó, le tonnerre et la royauté",
+      "resume": "La foudre, le feu, la double hache, Ọ̀yọ́.",
+      "lecon": "<p><strong>Ṣàngó</strong> (Changó à Cuba, Xangô au Brésil) est l'orisha du <strong>tonnerre</strong>, de la <strong>foudre</strong> et du <strong>feu</strong>.</p>\n<p>Son emblème rituel le plus célèbre est l'<strong>oṣé</strong>, une <strong>hache à double tranchant</strong>.</p>\n<hr class=\"etape\">\n<h3>Un roi devenu orisha</h3>\n<p>La tradition fait de Ṣàngó un <strong>roi (Aláàfin) d'Ọ̀yọ́</strong>, grand royaume yoruba. Son culte devint central dans l'installation des rois d'Ọ̀yọ́.</p>\n<div class=\"attention\"><p>Les sources ne s'accordent pas sur son rang dans la lignée : troisième ou quatrième Aláàfin. AKASHA laisse ce point ouvert plutôt que de trancher.</p></div>\n<hr class=\"etape\">\n<h3>À Cuba</h3>\n<p>Dans la Regla de Ocha, Changó est associé à <strong>sainte Barbe</strong> (Santa Bárbara), fêtée le 4 décembre. L'ethnologue Lydia Cabrera l'a résumé d'une formule : « la Santa Bárbara que l'on adore à l'église, c'est Changó habillé en femme ».</p>\n<div class=\"exemple\"><p><strong>Syncrétisme attesté, pas identité :</strong> la sainte et l'orisha partagent une image et une fête ; ils ne sont pas la même figure.</p></div>\n<hr class=\"etape\">\n<h3>Sources</h3>\n<p><em>Brouillon à vérifier : chaque point attend la relecture de Laurent avant publication.</em></p>\n<ul><li>Encyclopædia Britannica, « Shango » : oṣé, feu et foudre, rôle du culte dans l'installation des rois d'Ọ̀yọ́.</li><li>Rang d'Aláàfin : sources secondaires divergentes (3ᵉ ou 4ᵉ) — vide honnête.</li><li>Lydia Cabrera, <em>El Monte</em> (1954), citée par Cubanet (« La fusión de fe: Santa Bárbara y Shangó ») — à vérifier dans le texte.</li></ul>",
+      "questions": [
+        {
+          "id": "domaine",
+          "enonce": "De quoi Ṣàngó est-il l'orisha ?",
+          "image": "",
+          "choix": [
+            "Du tonnerre, de la foudre et du feu",
+            "Du fer",
+            "Des eaux douces"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Le fer est à Ògún, les eaux douces à Ọ̀ṣun."
+        },
+        {
+          "id": "ose",
+          "enonce": "Qu'est-ce que l'oṣé ?",
+          "image": "",
+          "choix": [
+            "Une hache à double tranchant, emblème de Ṣàngó",
+            "Un tambour",
+            "Un plateau de divination"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Le plateau de divination (ọpọ́n) appartient à Ifá."
+        },
+        {
+          "id": "oyo",
+          "enonce": "À quel royaume la tradition rattache-t-elle Ṣàngó comme roi ?",
+          "image": "",
+          "choix": [
+            "Ọ̀yọ́",
+            "Ifẹ̀",
+            "Le Dahomey"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Son culte devint central dans l'installation des rois d'Ọ̀yọ́."
+        },
+        {
+          "id": "rang",
+          "enonce": "Quel Aláàfin d'Ọ̀yọ́ Ṣàngó fut-il ?",
+          "image": "",
+          "choix": [
+            "Le premier, sans aucun doute",
+            "Les sources divergent : troisième ou quatrième"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Plutôt que de trancher, on signale le désaccord des sources."
+        },
+        {
+          "id": "barbe",
+          "enonce": "À Cuba, Changó est associé à…",
+          "image": "",
+          "choix": [
+            "sainte Barbe",
+            "saint Lazare",
+            "la Vierge de Regla"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Saint Lazare est associé à Babalú Ayé ; la Vierge de Regla à Yemayá."
+        }
+      ]
+    },
+    {
+      "id": "osun-yemoja",
+      "titre": "Ọ̀ṣun et Yemọja, les eaux",
+      "resume": "Eau douce, eau salée, fertilité et maternité.",
+      "lecon": "<p><strong>Ọ̀ṣun</strong> (Ochún, Oxum) est l'orisha des <strong>eaux douces</strong>, de l'amour et de la <strong>fertilité</strong>. Elle habite la rivière qui porte son nom.</p>\n<p>À Oṣogbo (Nigeria), le <strong>bosquet sacré d'Osun-Osogbo</strong>, demeure de la déesse le long de la rivière, est inscrit au patrimoine mondial de l'UNESCO depuis 2005. Une grande fête l'honore chaque année en août.</p>\n<hr class=\"etape\">\n<h3>Yemọja</h3>\n<p><strong>Yemọja</strong> est, au pays yoruba, l'orisha de la <strong>rivière Ògùn</strong>. Figure maternelle, elle est souvent dite « mère des orishas » ; d'autres récits disent qu'elle n'a pas enfanté mais a élevé de nombreux enfants.</p>\n<div class=\"encadre\"><p>En Afrique, Yemọja est une divinité de rivière ; à Cuba et au Brésil, elle est d'abord la <strong>mer</strong>.</p></div>\n<hr class=\"etape\">\n<h3>Dans la diaspora</h3>\n<ul><li>À Cuba, <strong>Ochún</strong> est associée à la Vierge de la Charité du Cuivre (Caridad del Cobre), patronne de l'île, fêtée le 8 septembre, vêtue de jaune et d'or.</li>\n<li>À Cuba, <strong>Yemayá</strong> est associée à la Vierge de Regla, patronne de la baie de La Havane.</li>\n<li>Au Brésil, <strong>Iemanjá</strong> est célébrée la nuit du Nouvel An depuis les années 1930 : offrandes confiées à la mer.</li></ul>\n<div class=\"attention\"><p>Ne pas transposer la mer à la Yemọja du Nigeria, ni la rivière à l'Iemanjá du Brésil : la même figure a changé d'eau en traversant l'Atlantique.</p></div>\n<hr class=\"etape\">\n<h3>Sources</h3>\n<p><em>Brouillon à vérifier : chaque point attend la relecture de Laurent avant publication.</em></p>\n<ul><li>UNESCO, Centre du patrimoine mondial, dossier de nomination 1118 « Osun-Osogbo Sacred Grove » (inscription 2005).</li><li>Encyclopædia Britannica, « Yemonja » : rivière Ògùn, récits sur la maternité, fête brésilienne du Nouvel An depuis les années 1930.</li><li>Syncrétismes cubains (Caridad del Cobre, Regla) : sources cubaines secondaires — à recouper (Lydia Cabrera, Natalia Bolívar).</li></ul>",
+      "questions": [
+        {
+          "id": "osun",
+          "enonce": "Ọ̀ṣun est l'orisha…",
+          "image": "",
+          "choix": [
+            "des eaux douces, de l'amour et de la fertilité",
+            "de la mer",
+            "du feu"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "La mer revient à Yemọja dans la diaspora ; le feu à Ṣàngó."
+        },
+        {
+          "id": "osogbo",
+          "enonce": "Qu'est-ce que le bosquet d'Osun-Osogbo ?",
+          "image": "",
+          "choix": [
+            "Un site sacré du Nigeria inscrit à l'UNESCO en 2005",
+            "Un quartier de La Havane",
+            "Un temple du Candomblé à Salvador"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "C'est la demeure de la déesse le long de sa rivière, honorée chaque année en août."
+        },
+        {
+          "id": "yemoja-afrique",
+          "enonce": "Au pays yoruba, Yemọja est l'orisha…",
+          "image": "",
+          "choix": [
+            "de la rivière Ògùn",
+            "de l'océan Atlantique",
+            "des montagnes"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Elle ne devient d'abord la mer que dans la diaspora, à Cuba et au Brésil."
+        },
+        {
+          "id": "caridad",
+          "enonce": "À Cuba, à quelle figure catholique Ochún est-elle associée ?",
+          "image": "",
+          "choix": [
+            "La Vierge de la Charité du Cuivre",
+            "Sainte Barbe",
+            "La Vierge des Grâces"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Sainte Barbe est associée à Changó."
+        },
+        {
+          "id": "bresil",
+          "enonce": "Que fait-on pour Iemanjá au Brésil la nuit du Nouvel An ?",
+          "image": "",
+          "choix": [
+            "On confie des offrandes à la mer",
+            "On allume un feu sur les collines",
+            "On consulte le plateau d'Ifá"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Une tradition attestée depuis les années 1930 selon Britannica."
+        }
+      ]
+    },
+    {
+      "id": "obatala-ifa",
+      "titre": "Ọbàtálá et Ifá",
+      "resume": "Le modeleur des corps, la sagesse et la divination.",
+      "lecon": "<p><strong>Ọbàtálá</strong> (Obatalá, Oxalá) est l'orisha qui <strong>façonne les corps humains</strong> dans l'argile. Selon un récit répandu, il donnait forme aux figures, mais c'est l'être suprême qui leur insufflait la vie.</p>\n<p>Il est associé à la <strong>sagesse</strong>, à la <strong>pureté</strong> et à la couleur <strong>blanche</strong> ; il est aussi le patron des artistes.</p>\n<hr class=\"etape\">\n<h3>Ifá</h3>\n<p><strong>Ifá</strong> est le système de divination yoruba, lié à <strong>Ọ̀rúnmìlà</strong>, divinité de la sagesse et du développement intellectuel.</p>\n<p>Le devin, le <strong>babaláwo</strong>, détermine un signe à l'aide de <strong>noix de palme sacrées</strong> ou d'une <strong>chaîne de divination</strong>. Chaque signe renvoie à l'un des <strong>256 odù</strong> du corpus, eux-mêmes divisés en versets (<em>ẹsẹ</em>).</p>\n<div class=\"encadre\"><p>16 odù principaux, combinés deux à deux, donnent les 256 odù (16 × 16).</p></div>\n<hr class=\"etape\">\n<h3>Un patrimoine de l'humanité</h3>\n<p>L'UNESCO a proclamé le système d'Ifá chef-d'œuvre du patrimoine oral et immatériel en 2005, puis l'a inscrit sur la Liste représentative en 2008.</p>\n<div class=\"exemple\"><p>Dans AKASHA, l'outil <strong>Odù d'Ifá</strong> (espace Outils) permet d'explorer ces signes.</p></div>\n<hr class=\"etape\">\n<h3>Sources</h3>\n<p><em>Brouillon à vérifier : chaque point attend la relecture de Laurent avant publication.</em></p>\n<ul><li>UNESCO, Patrimoine culturel immatériel, « Ifa divination system » (00146) : babaláwo, noix de palme et chaîne, 256 odù et ẹsẹ, Ọ̀rúnmìlà ; proclamation 2005, inscription 2008.</li><li>Récit de la création à Ifẹ̀ : « From Myths of Ife » (Maricopa, recueil de mythologie) — version parmi d'autres.</li><li>Virginia Museum of Fine Arts, « Red: Gold for Royalty and Orisas » : Ọbàtálá patron des artistes.</li></ul>",
+      "questions": [
+        {
+          "id": "corps",
+          "enonce": "Quel orisha façonne les corps humains dans l'argile ?",
+          "image": "",
+          "choix": [
+            "Ọbàtálá",
+            "Ògún",
+            "Èṣù"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Selon un récit répandu, l'être suprême leur insuffle ensuite la vie."
+        },
+        {
+          "id": "blanc",
+          "enonce": "À quelle couleur Ọbàtálá est-il associé ?",
+          "image": "",
+          "choix": [
+            "Le blanc",
+            "Le rouge",
+            "Le jaune"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Le blanc dit sa pureté ; le jaune est la couleur d'Ọ̀ṣun à Cuba."
+        },
+        {
+          "id": "babalawo",
+          "enonce": "Qui interprète les signes d'Ifá ?",
+          "image": "",
+          "choix": [
+            "Le babaláwo",
+            "Le roi d'Ọ̀yọ́",
+            "N'importe quel fidèle"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Le babaláwo est le prêtre-devin d'Ifá."
+        },
+        {
+          "id": "odu",
+          "enonce": "Combien le corpus d'Ifá compte-t-il d'odù ?",
+          "image": "",
+          "choix": [
+            "16",
+            "256",
+            "401"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "16 odù principaux combinés deux à deux : 16 × 16 = 256."
+        },
+        {
+          "id": "unesco",
+          "enonce": "Qu'a fait l'UNESCO pour Ifá ?",
+          "image": "",
+          "choix": [
+            "Proclamation en 2005",
+            "Inscription sur la Liste représentative en 2008",
+            "Classement comme site naturel"
+          ],
+          "bonnes": [
+            0,
+            1
+          ],
+          "explication": "Ifá est un patrimoine immatériel, pas un site naturel."
+        }
+      ]
+    },
+    {
+      "id": "diaspora-syncretisme",
+      "titre": "Diaspora et syncrétisme",
+      "resume": "Relier sans confondre : orishas et saints.",
+      "lecon": "<p>À Cuba, les orishas ont été honorés sous l'image de <strong>saints catholiques</strong>. Ces correspondances sont <strong>attestées</strong> :</p>\n<table><thead><tr><th>Orisha (Cuba)</th><th>Figure catholique</th></tr></thead><tbody>\n<tr><td>Changó</td><td>Sainte Barbe</td></tr>\n<tr><td>Ochún</td><td>Vierge de la Charité du Cuivre</td></tr>\n<tr><td>Yemayá</td><td>Vierge de Regla</td></tr>\n<tr><td>Obatalá</td><td>Vierge de la Merci (las Mercedes)</td></tr>\n<tr><td>Babalú Ayé</td><td>Saint Lazare (pèlerinage du 17 décembre)</td></tr>\n<tr><td>Elegguá</td><td>Saint Enfant d'Atocha (variantes selon les maisons)</td></tr></tbody></table>\n<hr class=\"etape\">\n<h3>Relier sans confondre</h3>\n<div class=\"attention\"><p>Un syncrétisme attesté n'est <strong>pas une identité</strong>. Changó n'est pas sainte Barbe : ils partagent une image, une date, une dévotion.</p></div>\n<p>C'est la règle d'AKASHA : une correspondance se donne toujours avec son <strong>point commun</strong> et sa <strong>différence</strong>.</p>\n<hr class=\"etape\">\n<h3>Un débat vivant</h3>\n<p>Des anthropologues contestent l'idée d'une simple « fusion » entre religion yoruba et catholicisme. Un courant de pratiquants rejette même le syncrétisme pour revenir aux seules racines africaines.</p>\n<div class=\"encadre\"><p>Comprendre avant d'interpréter : on présente les correspondances comme des faits historiques de la diaspora, pas comme la vérité des orishas.</p></div>\n<hr class=\"etape\">\n<h3>Sources</h3>\n<p><em>Brouillon à vérifier : chaque point attend la relecture de Laurent avant publication.</em></p>\n<ul><li>Cubanet, « Santa Bárbara y Changó » ; Natalia Bolívar Aróstegui (Université de Liverpool, Black Atlantic) ; sources cubaines sur Obatalá / las Mercedes et Elegguá / Atocha — à recouper.</li><li>Jesús Fernández Cano, <em>Gazeta de Antropología</em> n° 21 : critique de la notion de syncrétisme pour la Santería.</li><li>Devise éditoriale AKASHA : « Relier sans confondre. Explorer sans imposer. Comprendre avant d'interpréter. »</li></ul>",
+      "questions": [
+        {
+          "id": "lazare",
+          "enonce": "À Cuba, Babalú Ayé est associé à…",
+          "image": "",
+          "choix": [
+            "saint Lazare",
+            "sainte Barbe",
+            "la Vierge de Regla"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Un pèlerinage à San Lázaro a lieu chaque 17 décembre."
+        },
+        {
+          "id": "mercedes",
+          "enonce": "À quelle figure catholique Obatalá est-il associé à Cuba ?",
+          "image": "",
+          "choix": [
+            "La Vierge de la Merci",
+            "La Vierge de la Charité du Cuivre",
+            "Saint Lazare"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "La Charité du Cuivre est associée à Ochún."
+        },
+        {
+          "id": "identite",
+          "enonce": "Changó et sainte Barbe sont…",
+          "image": "",
+          "choix": [
+            "une seule et même figure",
+            "liés par un syncrétisme attesté, sans être identiques"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Ils partagent une image et une fête ; un syncrétisme n'est pas une identité."
+        },
+        {
+          "id": "regle",
+          "enonce": "Selon la règle d'AKASHA, une correspondance se présente toujours avec…",
+          "image": "",
+          "choix": [
+            "son point commun et sa différence",
+            "une seule source",
+            "une illustration"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Relier sans confondre."
+        },
+        {
+          "id": "debat",
+          "enonce": "Que contestent certains anthropologues et pratiquants ?",
+          "image": "",
+          "choix": [
+            "L'existence des orishas",
+            "L'idée d'une simple fusion avec le catholicisme",
+            "L'origine yoruba du culte"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Ils y voient une lecture réductrice ; certains pratiquants rejettent le syncrétisme."
+        }
+      ]
+    }
+  ]
+}
