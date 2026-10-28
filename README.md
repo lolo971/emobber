@@ -12,6 +12,15 @@
 | [`accessibility-compliance`](.claude/skills/accessibility-compliance/SKILL.md) | WCAG 2.2, lecteurs d'écran (VoiceOver, TalkBack), clavier, contrastes. |
 | [`mobile-ios-design`](.claude/skills/mobile-ios-design/SKILL.md) | Apple Human Interface Guidelines, SwiftUI. |
 | [`mobile-android-design`](.claude/skills/mobile-android-design/SKILL.md) | Material Design 3, Jetpack Compose. |
+| [`mobile-native`](.claude/skills/mobile-native/SKILL.md) | Faire « app installée » sur téléphone : hover collant, flash au toucher, 100vh, zoom des champs, encoche, latence des taps. |
+| [`emil-design-eng`](.claude/skills/emil-design-eng/SKILL.md) | Philosophie de finition d'Emil Kowalski : animations, composants, détails invisibles. |
+| [`animate`](.claude/skills/animate/SKILL.md) | Construire une animation juste : courbe, durée, propriétés, interruption, sortie. |
+| [`apple-design`](.claude/skills/apple-design/SKILL.md) | Mouvement fluide et physique à la manière d'Apple, transposé au web : ressorts, gestes, tiroirs, matières. |
+| [`interaction-design`](.claude/skills/interaction-design/SKILL.md) | Micro-interactions, transitions, chargements, toasts, menus. |
+| [`animation-performance`](.claude/skills/animation-performance/SKILL.md) | 60 images/s : propriétés composées, causes des saccades. |
+| [`find-animation-opportunities`](.claude/skills/find-animation-opportunities/SKILL.md) · [`improve-animations`](.claude/skills/improve-animations/SKILL.md) · [`review-animations`](.claude/skills/review-animations/SKILL.md) | Trouver où animer, auditer et relire le mouvement existant (les deux derniers sur demande explicite). |
+| [`animation-vocabulary`](.claude/skills/animation-vocabulary/SKILL.md) | Le bon mot pour chaque effet (« pop in », « rubber-banding »…). |
+| [`break-ui`](.claude/skills/break-ui/SKILL.md) | Éprouver l'interface avec des données extrêmes (noms très longs, listes vides…). |
 
 Origine, licences et **ordre de priorité** (l'identité AKASHA prime toujours) : [`.claude/skills/SOURCES.md`](.claude/skills/SOURCES.md).
 

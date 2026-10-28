@@ -8,6 +8,20 @@
 | `mobile-android-design` | idem | MIT | Non |
 | `responsive-design` | idem | MIT | Non |
 | `accessibility-compliance` | idem | MIT | Non |
+| `interaction-design` | idem | MIT | Non |
+| `emil-design-eng` | [emilkowalski/skills](https://github.com/emilkowalski/skills) `2d22863` (auteur de Sonner et Vaul, cours animations.dev) | MIT | Non |
+| `animate` | idem | MIT | Non |
+| `review-animations` | idem | MIT | Non |
+| `improve-animations` | idem | MIT | Non |
+| `find-animation-opportunities` | idem | MIT | Non |
+| `animation-performance` | idem | MIT | Non |
+| `animation-vocabulary` | idem | MIT | Non |
+| `apple-design` | idem | MIT | Non |
+| `mobile-native` | idem | MIT | Non |
+| `break-ui` | idem | MIT | Non |
+
+Non importés (hors de notre pile HTML/CSS/JS sans framework) : `animate-expo` (React Native), `write-swift`,
+`ask-sonner` et `pick-ui-library` (bibliothèques React), `prototype`.
 
 Contenu relu avant import (aucun appel réseau, aucune commande système dans les scripts ; aucune
 instruction cachée dans les références). Le script de UI UX Pro Max ne demande que Python 3 :
