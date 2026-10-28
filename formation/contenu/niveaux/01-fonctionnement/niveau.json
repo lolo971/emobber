@@ -1,0 +1,41 @@
+{
+  "questions": [
+    {
+      "id": "ouverture",
+      "enonce": "Quel niveau est toujours ouvert, sans condition ?",
+      "choix": ["Le niveau 1", "Le dernier niveau", "Aucun : il faut un compte", "Tous les niveaux"],
+      "bonnes": [0],
+      "explication": "Le niveau 1 est le point de départ ; chacun des suivants s'ouvre après réussite du précédent."
+    },
+    {
+      "id": "seuil",
+      "enonce": "Avec un seuil de 80 % et un quiz de 5 questions, combien de bonnes réponses faut-il au minimum ?",
+      "choix": ["3", "4", "5"],
+      "bonnes": [1],
+      "explication": "4 / 5 = 80 % : le seuil est atteint."
+    },
+    {
+      "id": "multiple",
+      "enonce": "Pour une question à plusieurs bonnes réponses, quand est-elle comptée juste ?",
+      "choix": [
+        "Dès qu'une bonne réponse est cochée",
+        "Quand toutes les bonnes réponses, et elles seules, sont cochées",
+        "Quand la majorité des cases cochées sont bonnes"
+      ],
+      "bonnes": [1],
+      "explication": "Il faut l'ensemble exact des bonnes réponses : ni oubli, ni case en trop."
+    },
+    {
+      "id": "conservation",
+      "enonce": "Quelles affirmations sur la progression sont vraies ?",
+      "choix": [
+        "Elle est enregistrée dans le navigateur",
+        "Elle peut être exportée puis importée sur un autre appareil",
+        "Elle est conservée en navigation privée après fermeture",
+        "Le meilleur score obtenu est retenu"
+      ],
+      "bonnes": [0, 1, 3],
+      "explication": "La navigation privée efface les données à la fermeture ; les trois autres affirmations sont exactes."
+    }
+  ]
+}

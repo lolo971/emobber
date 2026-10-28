@@ -1,0 +1,17 @@
+<p>Avant chaque mise en ligne, trois gestes, dans cet ordre.</p>
+
+<h3>1. Vérifier le contenu</h3>
+<pre><code>node formation/outils/verifier-contenu.mjs</code></pre>
+<p>Le vérificateur signale les fichiers manquants, les identifiants en double et les numéros de bonnes réponses hors de la liste des choix. Il ne doit afficher aucune erreur.</p>
+
+<h3>2. Tester en local</h3>
+<pre><code>python3 -m http.server 8000 -d formation</code></pre>
+<p>Puis ouvrir <code>http://localhost:8000</code>. Le site doit être servi par un serveur web : ouvert en double-cliquant <code>index.html</code>, il ne peut pas lire ses fichiers de contenu.</p>
+
+<h3>3. Déployer</h3>
+<pre><code>deploy/deployer-pi.sh</code></pre>
+<p>Le script relance la vérification, puis copie le site sur le Raspberry Pi avec <code>rsync</code>. Sur le Pi, <code>nginx</code> sert le dossier à l'adresse <code>/formation/</code>.</p>
+
+<div class="attention">
+  Les réponses des quiz sont lisibles dans les fichiers du site. Cet outil sert à apprendre et à s'auto-évaluer, pas à certifier un examen.
+</div>

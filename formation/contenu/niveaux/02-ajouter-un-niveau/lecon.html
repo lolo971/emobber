@@ -1,0 +1,30 @@
+<p>Tout le contenu se trouve dans le dossier <code>formation/contenu/</code>. Le code du site n'a jamais besoin d'être modifié pour ajouter une formation.</p>
+
+<h3>Les trois étapes</h3>
+<ol>
+  <li>Créer un dossier dans <code>contenu/niveaux/</code>, par exemple <code>04-mon-sujet</code>.</li>
+  <li>Y placer deux fichiers :
+    <ul>
+      <li><code>lecon.html</code> : le texte de la leçon (paragraphes, listes, tableaux, images) ;</li>
+      <li><code>niveau.json</code> : les questions du quiz.</li>
+    </ul>
+  </li>
+  <li>Déclarer le niveau dans <code>contenu/parcours.json</code>, à la position voulue dans la liste <code>niveaux</code>.</li>
+</ol>
+
+<h3>Format d'une question</h3>
+<pre><code>{
+  "id": "tva",
+  "enonce": "Quel est le taux normal de TVA ?",
+  "choix": ["5,5 %", "10 %", "20 %"],
+  "bonnes": [2],
+  "explication": "Le taux normal est de 20 %."
+}</code></pre>
+
+<div class="encadre">
+  Les choix sont numérotés à partir de <strong>0</strong> : dans l'exemple, <code>"bonnes": [2]</code> désigne « 20 % », le troisième choix. Mettre plusieurs numéros dans <code>bonnes</code> transforme la question en choix multiple.
+</div>
+
+<h3>Mise en forme de la leçon</h3>
+<p>Trois encadrés sont disponibles : <code>&lt;div class="encadre"&gt;</code> pour une notion clé, <code>&lt;div class="exemple"&gt;</code> pour un exemple, <code>&lt;div class="attention"&gt;</code> pour un piège à éviter.</p>
+<p>Un niveau peut aussi définir son propre seuil avec <code>"seuil": 100</code> dans <code>niveau.json</code>.</p>
