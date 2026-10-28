@@ -34,47 +34,56 @@ corbeille/             formations supprimées (récupérables)
 ```bash
 cd formation
 FORMATION_MOT_DE_PASSE=essai node serveur.js
-# site : http://127.0.0.1:8090/   back-office : http://127.0.0.1:8090/admin/
+# site : http://127.0.0.1:8092/   back-office : http://127.0.0.1:8092/admin/
 ```
 
 Sans `FORMATION_MOT_DE_PASSE`, le site fonctionne mais le back-office reste fermé.
 
-## Mise en place sur le Raspberry Pi (une seule fois)
+## Installation actuelle sur le Pi (LORAWAN, 192.168.1.21)
+
+Installée le 28/10/2026, accessible **depuis le réseau local uniquement** :
+
+- site : **http://192.168.1.21:8092/** · back-office : **http://192.168.1.21:8092/admin/**
+- mot de passe du back-office : `sudo cat /etc/akasha-formation.env`
+- code : `/opt/akasha-formation` (copie de `~/emobber/formation`) · données : `/var/lib/akasha-formation`
+- service : `akasha-formation` (systemd, utilisateur `pi`, `FORMATION_PORT=8092`, `FORMATION_HOTE=0.0.0.0`)
+- le port 8090 est pris par le conteneur `atelier-redirection` ; le serveur web du Pi est **Apache** (pas nginx) et n'a pas été modifié ; aucune exposition Internet (cloudflared intact).
+
+### Mettre à jour le code (sur le Pi)
 
 ```bash
-# Node 18+ et nginx
-node -v                       # sinon : sudo apt install nodejs
-sudo apt install nginx rsync
-
-# Dossiers
-sudo mkdir -p /opt/akasha-formation /var/lib/akasha-formation
-sudo chown pi: /opt/akasha-formation /var/lib/akasha-formation
-
-# Mot de passe du back-office (lisible par root seulement)
-echo 'FORMATION_MOT_DE_PASSE=<un mot de passe long>' | sudo tee /etc/akasha-formation.env
-sudo chmod 600 /etc/akasha-formation.env
+git -C ~/emobber pull
+rsync -a --delete --exclude donnees/ ~/emobber/formation/ /opt/akasha-formation/
+node /opt/akasha-formation/outils/verifier-contenu.mjs
+sudo systemctl restart akasha-formation && systemctl is-active akasha-formation
 ```
 
-Depuis le poste qui a le dépôt, premier envoi du code : `deploy/deployer-pi.sh`. Le script copie aussi le fichier de service et la configuration nginx dans `/opt/akasha-formation/deploy/`. Au premier envoi, le redémarrage échoue tant que le service n'existe pas : c'est attendu. Puis, sur le Pi :
+Les formations du back-office vivent dans `/var/lib/akasha-formation` : la mise à jour n'y touche jamais.
+Depuis un autre poste avec accès SSH : `deploy/deployer-pi.sh pi@192.168.1.21`.
+
+### Option : une adresse en /formation/ via Apache
+
+`deploy/apache-formation.conf` contient le bloc à ajouter au VirtualHost d'Apache (après sauvegarde,
+avec `a2enmod proxy proxy_http`). Le service peut alors repasser en `FORMATION_HOTE=127.0.0.1`.
+
+### Désinstaller
 
 ```bash
-sudo cp /opt/akasha-formation/deploy/akasha-formation.service /etc/systemd/system/
+sudo systemctl disable --now akasha-formation
+sudo rm /etc/systemd/system/akasha-formation.service /etc/akasha-formation.env
 sudo systemctl daemon-reload
-sudo systemctl enable --now akasha-formation
+sudo rm -rf /opt/akasha-formation
+rm -rf ~/emobber
+# garder /var/lib/akasha-formation pour conserver les formations, sinon : sudo rm -rf /var/lib/akasha-formation
 ```
 
-Si l'utilisateur du Pi ne s'appelle pas `pi`, adapter `User=` dans le fichier de service.
+## Installer sur une autre machine
 
-Ajouter le bloc de `/opt/akasha-formation/deploy/nginx-formation.conf` dans le `server { … }` de nginx. Si l'outil de revient est déjà servi par un serveur web sur le Pi, ajouter ce bloc à sa configuration au lieu d'installer nginx une deuxième fois. Puis : `sudo nginx -t && sudo systemctl reload nginx`.
-
-## Mettre à jour le code
-
-```bash
-deploy/deployer-pi.sh                    # cible par défaut : pi@raspberrypi.local
-deploy/deployer-pi.sh laurent@192.168.1.20
-```
-
-Le script vérifie les données initiales, copie le code dans `/opt/akasha-formation`, puis redémarre le service. Il ne touche jamais aux formations créées dans le back-office.
+1. Node 18+ ; `sudo mkdir -p /opt/akasha-formation /var/lib/akasha-formation && sudo chown $USER: /opt/akasha-formation /var/lib/akasha-formation`
+2. Copier `formation/` dans `/opt/akasha-formation`.
+3. `echo "FORMATION_MOT_DE_PASSE=$(openssl rand -base64 18)" | sudo tee /etc/akasha-formation.env >/dev/null && sudo chmod 600 /etc/akasha-formation.env`
+4. Copier `deploy/akasha-formation.service` dans `/etc/systemd/system/` (adapter `User=`, le port s'il est pris), puis `sudo systemctl daemon-reload && sudo systemctl enable --now akasha-formation`.
+5. Accès : direct sur le port (`FORMATION_HOTE=0.0.0.0`), ou derrière nginx (`deploy/nginx-formation.conf`) / Apache (`deploy/apache-formation.conf`).
 
 ## Sauvegarde
 

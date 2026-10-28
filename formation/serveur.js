@@ -5,8 +5,8 @@
 // Variables d'environnement :
 //   FORMATION_MOT_DE_PASSE  mot de passe du back-office (sans lui, le back-office reste fermé)
 //   FORMATION_DONNEES       dossier des données (défaut : ./donnees)
-//   FORMATION_PORT          port d'écoute (défaut : 8090)
-//   FORMATION_HOTE          adresse d'écoute (défaut : 127.0.0.1, derrière nginx)
+//   FORMATION_PORT          port d'écoute (défaut : 8092)
+//   FORMATION_HOTE          adresse d'écoute (défaut : 127.0.0.1 ; 0.0.0.0 pour le réseau local)
 
 import http from 'node:http';
 import { createReadStream } from 'node:fs';
@@ -25,7 +25,7 @@ const DOSSIERS = {
   historique: join(DONNEES, 'historique'),
   corbeille: join(DONNEES, 'corbeille'),
 };
-const PORT = Number(process.env.FORMATION_PORT || 8090);
+const PORT = Number(process.env.FORMATION_PORT || 8092);
 const HOTE = process.env.FORMATION_HOTE || '127.0.0.1';
 const MOT_DE_PASSE = process.env.FORMATION_MOT_DE_PASSE || '';
 
@@ -56,14 +56,16 @@ const ENTETES_SECURITE = {
 
 async function preparerDonnees() {
   for (const d of Object.values(DOSSIERS)) await mkdir(d, { recursive: true });
-  const existants = (await readdir(DOSSIERS.formations)).filter((f) => f.endsWith('.json'));
+  // Au tout premier démarrage, copie les données initiales absentes (sans rien écraser).
   const marqueur = join(DONNEES, '.initialise');
-  if (existants.length === 0 && !(await existe(marqueur))) {
+  if (!(await existe(marqueur))) {
     const initiales = join(ICI, 'donnees-initiales');
     for (const sous of ['formations', 'medias']) {
       const source = join(initiales, sous);
       if (!(await existe(source))) continue;
-      for (const f of await readdir(source)) await copyFile(join(source, f), join(DOSSIERS[sous], f));
+      for (const f of await readdir(source)) {
+        if (!(await existe(join(DOSSIERS[sous], f)))) await copyFile(join(source, f), join(DOSSIERS[sous], f));
+      }
     }
     console.log('Données initiales copiées dans', DONNEES);
   }

@@ -13,7 +13,9 @@ ExecStart=/usr/bin/node /opt/akasha-formation/serveur.js
 # Contient FORMATION_MOT_DE_PASSE=… (fichier lisible par root seulement)
 EnvironmentFile=/etc/akasha-formation.env
 Environment=FORMATION_DONNEES=/var/lib/akasha-formation
-Environment=FORMATION_PORT=8090
+Environment=FORMATION_PORT=8092
+# Accès direct depuis le réseau local (http://<IP-du-Pi>:8092/). Mettre 127.0.0.1 derrière un proxy.
+Environment=FORMATION_HOTE=0.0.0.0
 Restart=on-failure
 RestartSec=3
 NoNewPrivileges=true
