@@ -1,0 +1,237 @@
+{
+  "id": "preparer-stage-eveil",
+  "titre": "Préparer le Stage Éveil",
+  "sousTitre": "3 jours pour que ton Âme reprenne les clés",
+  "description": "Le module de préparation des participantes et participants au Stage Éveil de Maât Soby : l'intention, la traversée en 3 jours, les infos pratiques et la suite du chemin. Avec les mots de Maât Soby.",
+  "image": "",
+  "seuil": 80,
+  "publie": false,
+  "acces": "reserve",
+  "modifieLe": "2026-10-28T20:30:00.000Z",
+  "niveaux": [
+    {
+      "id": "l-intention",
+      "titre": "L'intention",
+      "resume": "Pourquoi ce stage est né, et pour qui.",
+      "lecon": "<p class=\"essence\">Tu as tout compris avec ta tête. Il est temps de tout vivre avec ton Âme.</p>\n<p>Pendant 3 jours, Maât Soby t'invite à sortir du monde qui parle de spiritualité, pour entrer dans le monde qui la <strong>vit</strong>.</p>\n<div class=\"encadre\"><p>Pas de théorie. De la transe. Des messages. De la vérité qui traverse le corps.</p></div>\n<hr class=\"etape\">\n<h3>Pourquoi ce stage est né</h3>\n<blockquote><p>Parce que je vous ai vues. Vous lisez, vous vous formez, vous comprenez vos blessures. Mais votre ventre est toujours noué. Votre voix tremble encore. Votre don reste à moitié éteint. Vous savez. Mais vous ne VIBREZ pas encore.</p></blockquote>\n<p>Le Stage Éveil est né pour ça : pour <strong>ouvrir la connexion sacrée avec le corps</strong>.</p>\n<hr class=\"etape\">\n<h3>Une initiation, pas une formation</h3>\n<p>Ce stage est pour toi si :</p>\n<ul><li>tu sens que tu es un·e passeur·se, un·e guérisseur·se, un·e homme / femme médecine, mais tu n'oses pas l'incarner ;</li>\n<li>tu es fatiguée d'entendre parler de ton Âme sans jamais l'entendre vraiment ;</li>\n<li>ton ventre te parle (douleurs, blocages, infertilité, non-désir) et tu sais que ce n'est pas juste médical ;</li>\n<li>tu veux vivre la transe en sécurité, guidée, pour recevoir tes propres messages et guidances ;</li>\n<li>tu es prête à la Parole Sacrée.</li></ul>\n<div class=\"attention\"><p>Ce stage n'est <strong>pas</strong> pour toi si tu veux une autre formation. C'est une initiation.</p></div>",
+      "questions": [
+        {
+          "id": "ne-pour",
+          "enonce": "Pour quoi le Stage Éveil est-il né ?",
+          "image": "",
+          "choix": [
+            "Ouvrir la connexion sacrée avec le corps",
+            "Apprendre une nouvelle théorie spirituelle",
+            "Obtenir un diplôme de thérapeute"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "« Le Stage Éveil est né pour ça : pour ouvrir la connexion sacrée avec le corps. »"
+        },
+        {
+          "id": "nature",
+          "enonce": "Comment Maât Soby décrit-elle ce stage ?",
+          "image": "",
+          "choix": [
+            "Une formation théorique",
+            "Une initiation",
+            "Une conférence"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "« Ce stage n'est PAS pour toi si tu veux une autre formation. C'est une initiation. »"
+        },
+        {
+          "id": "vivre",
+          "enonce": "Que propose le stage plutôt que la théorie ?",
+          "image": "",
+          "choix": [
+            "De la transe",
+            "Des messages",
+            "Des cours magistraux",
+            "De la vérité qui traverse le corps"
+          ],
+          "bonnes": [
+            0,
+            1,
+            3
+          ],
+          "explication": "« Pas de théorie. De la transe. Des messages. De la vérité qui traverse le corps. »"
+        }
+      ]
+    },
+    {
+      "id": "la-traversee",
+      "titre": "La traversée en 3 jours",
+      "resume": "Le corps, l'Âme, la Parole.",
+      "lecon": "<p class=\"essence\">Ce n'est pas un stage. C'est une traversée.</p>\n<hr class=\"etape\">\n<h3>Jour 1 · Le corps, clair-ressenti</h3>\n<p>On descend. On ne monte pas. On va là où tout est stocké : ton corps, ton ventre, ton deuxième cœur.</p>\n<hr class=\"etape\">\n<h3>Jour 2 · L'Âme</h3>\n<p>On ouvre le portail. Par la <strong>transe consciente guidée</strong>, Maât Soby te connecte à ton Âme.</p>\n<div class=\"encadre\"><p>Ce n'est pas elle qui canalise pour toi : c'est <strong>toi</strong> qui reçois. Tes messages. Ta guidance. Ton nom spirituel, peut-être.</p></div>\n<p>Ce jour-là, tu ne croiras plus. Tu sauras. Ton Asé va monter.</p>\n<hr class=\"etape\">\n<h3>Jour 3 · La Parole</h3>\n<p>Quand le corps est en paix et que l'Âme a parlé, il reste la Parole qui crée.</p>\n<ul><li>refermer les failles ;</li><li>apprendre à poser les tabous positifs qui protègent ton énergie vitale ;</li><li>sceller par la Bénédiction.</li></ul>\n<p>Tu repartiras avec ta connexion sacrée.</p>",
+      "questions": [
+        {
+          "id": "jour1",
+          "enonce": "Le premier jour, où va-t-on ?",
+          "image": "",
+          "choix": [
+            "Vers le haut, dans les sphères célestes",
+            "Là où tout est stocké : le corps, le ventre, le deuxième cœur",
+            "Dans les livres sacrés"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "« On descend. On ne monte pas. On va là où tout est stocké : ton corps, ton ventre, ton deuxième cœur. »"
+        },
+        {
+          "id": "jour2",
+          "enonce": "Pendant la transe du deuxième jour, qui reçoit les messages ?",
+          "image": "",
+          "choix": [
+            "Maât Soby, qui canalise pour toi",
+            "Toi",
+            "Le groupe entier"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "« Ce n'est pas moi qui canalise pour toi : c'est TOI qui reçois. »"
+        },
+        {
+          "id": "ordre",
+          "enonce": "Dans quel ordre se vivent les trois jours ?",
+          "image": "",
+          "choix": [
+            "Le corps, l'Âme, la Parole",
+            "La Parole, le corps, l'Âme",
+            "L'Âme, la Parole, le corps"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Jour 1 : le corps (clair-ressenti). Jour 2 : l'Âme (transe consciente guidée). Jour 3 : la Parole."
+        },
+        {
+          "id": "jour3",
+          "enonce": "Que fait-on le troisième jour ?",
+          "image": "",
+          "choix": [
+            "Refermer les failles",
+            "Poser les tabous positifs qui protègent l'énergie vitale",
+            "Sceller par la Bénédiction",
+            "Passer un examen écrit"
+          ],
+          "bonnes": [
+            0,
+            1,
+            2
+          ],
+          "explication": "Le jour de la Parole : refermer les failles, poser les tabous positifs, sceller par la Bénédiction."
+        }
+      ]
+    },
+    {
+      "id": "venir-au-stage",
+      "titre": "Venir au stage",
+      "resume": "Dates, lieu, ce qui est inclus.",
+      "lecon": "<h3>Quand</h3>\n<p>Du <strong>vendredi 20 au dimanche 22 novembre 2026</strong>, pendant 3 jours.</p>\n<div class=\"attention\"><p><strong>À compléter par Maât Soby</strong> : les horaires de début et de fin de chaque journée.</p></div>\n<hr class=\"etape\">\n<h3>Où</h3>\n<p>En Guadeloupe, dans un <strong>lieu sacré tenu secret jusqu'à l'inscription</strong>. Maât Soby te le communique une fois ton inscription confirmée.</p>\n<hr class=\"etape\">\n<h3>Avec qui</h3>\n<p><strong>8 personnes maximum.</strong> « Je choisis avec soin, l'intime ne peut pas être foule. »</p>\n<hr class=\"etape\">\n<h3>Ce qu'il faut apporter</h3>\n<div class=\"encadre\"><p>Tout est inclus : les soins, les plantes, les rituels. Tu viens juste avec ton corps et ton Âme.</p></div>\n<div class=\"attention\"><p><strong>À compléter par Maât Soby</strong> : la tenue conseillée, l'alimentation (pendant et avant le stage), ce qu'il est utile d'apporter malgré tout (couverture, carnet, eau…) et les éventuelles contre-indications.</p></div>",
+      "questions": [
+        {
+          "id": "dates",
+          "enonce": "Quand a lieu le Stage Éveil ?",
+          "image": "",
+          "choix": [
+            "Du vendredi 20 au dimanche 22 novembre 2026",
+            "Un seul week-end par mois, en ligne",
+            "Du lundi au mercredi"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Du vendredi 20 au dimanche 22 novembre 2026."
+        },
+        {
+          "id": "lieu",
+          "enonce": "Quand connaîtras-tu le lieu exact ?",
+          "image": "",
+          "choix": [
+            "Il est affiché sur le site",
+            "Après ton inscription",
+            "Le matin du premier jour"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "Le lieu sacré est tenu secret jusqu'à l'inscription."
+        },
+        {
+          "id": "inclus",
+          "enonce": "Qu'est-ce qui est inclus dans le stage ?",
+          "image": "",
+          "choix": [
+            "Les soins",
+            "Les plantes",
+            "Les rituels",
+            "Le billet d'avion"
+          ],
+          "bonnes": [
+            0,
+            1,
+            2
+          ],
+          "explication": "« Tout est inclus : les soins, les plantes, les rituels. Tu viens juste avec ton corps et ton Âme. »"
+        }
+      ]
+    },
+    {
+      "id": "apres-le-stage",
+      "titre": "Après le stage",
+      "resume": "Ce avec quoi tu repars.",
+      "lecon": "<h3>Tu repartiras avec</h3>\n<ul><li>une <strong>connexion vivante à ton Âme</strong>, que tu pourras réactiver seule ;</li>\n<li>des messages clairs reçus en transe pour ton chemin actuel ;</li>\n<li>ton corps apaisé, réchauffé, réconcilié ;</li>\n<li>si tu es déjà thérapeute : âme, corps et esprit alignés à ta pratique ;</li>\n<li>l'appartenance à un cercle d'êtres qui, comme toi, ont choisi de ne plus se trahir.</li></ul>\n<hr class=\"etape\">\n<h3>La suite du chemin</h3>\n<p>Le Stage Éveil est le <strong>module 1 de la Voie de l'Âme</strong>. Après la traversée vient l'intégration : suivi, cercles de sœurs et de transmission pour ancrer ce qui est né.</p>\n<p class=\"essence\">Ton Âme sait. Asé.</p>",
+      "questions": [
+        {
+          "id": "reactiver",
+          "enonce": "La connexion à ton Âme reçue pendant le stage…",
+          "image": "",
+          "choix": [
+            "Ne peut être réactivée qu'avec Maât Soby",
+            "Peut être réactivée seule",
+            "Disparaît après le stage"
+          ],
+          "bonnes": [
+            1
+          ],
+          "explication": "« Une connexion vivante à ton Âme, que tu pourras réactiver seule. »"
+        },
+        {
+          "id": "module",
+          "enonce": "Que représente le Stage Éveil dans le parcours de Maât Soby ?",
+          "image": "",
+          "choix": [
+            "Le module 1 de la Voie de l'Âme",
+            "La dernière étape des 7 Portes",
+            "Un cercle ouvert d'une soirée"
+          ],
+          "bonnes": [
+            0
+          ],
+          "explication": "Le Stage Éveil est le module 1 de la Voie de l'Âme."
+        },
+        {
+          "id": "integrer",
+          "enonce": "Après la traversée, qu'est-ce qui aide à ancrer ce qui est né ?",
+          "image": "",
+          "choix": [
+            "Le suivi",
+            "Les cercles de sœurs et de transmission",
+            "Rien, tout s'arrête au troisième jour"
+          ],
+          "bonnes": [
+            0,
+            1
+          ],
+          "explication": "« Intégrer — Suivi, cercles de sœurs et de transmission pour ancrer ce qui est né. »"
+        }
+      ]
+    }
+  ]
+}
