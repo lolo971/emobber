@@ -35,21 +35,26 @@
 - En ligne sur le Pi (version de `main`) : étape 1 (offres, Stripe Connect avec commission 10 %,
   comptes stagiaires par lien, formations réservées), e-mails via n8n, étape 2 (agenda .ics, rappel la
   veille, liste d'attente), onglet Facturation (forfait 25 €/mois à partir de 2026-11).
-- **Paiement en mode SIMULATION** (`BOUTIQUE_SIMULATION=1`) : attendre le compte Stripe de Maât Soby
-  (« branchons Stripe ») ; alors : clé plateforme de Laurent, compte connecté, webhook, retirer la simulation,
-  et remplir le « Lien d'inscription » des événements de son site (son back-office, onglet Agenda).
+- **Paiement en ligne fermé** (simulation coupée le 29/10) : les offres payantes se réservent par message
+  (`BOUTIQUE_CONTACT` = son WhatsApp). Attendre le compte Stripe de Maât Soby (« branchons Stripe ») :
+  clé plateforme de Laurent, compte connecté, webhook.
+- **Son site lit l'agenda de la boutique** depuis le 29/10 (`deploy/maatsoby/brancher-agenda-boutique.mjs`,
+  appliqué sur `/DATA/AppData/maatsoby`, sauvegarde dans `sauvegardes/20261029-1332/`). Son code est copié
+  dans l'image : toute modif = `docker compose up -d --build` dans ce dossier (pas de git chez elle).
 - E-mails : Gmail dédié maatsoby.inscriptions@gmail.com, scénario n8n « Boutique Maât Soby — envoi des
   e-mails » (doit rester actif), protégé par un secret partagé (`BOUTIQUE_COURRIEL_SECRET`).
-- Offres (données du Pi `/var/lib/akasha-formation/boutique/offres.json`) : Stage Éveil **publié**
-  (450 € ou 3×150 €, sur invitation, lieu caché « communiqué après l'inscription », ouvre aussi la
-  formation Orishas) ; en brouillon : Cercle de guidance 35 €, Cercle de guérison 35 €, Osso 397 €,
-  7 Portes 790 € (3×, lieu caché), Incarnation 1 497 € (3×), Appel d'Âme (prix à fixer plus tard).
+- Offres (données du Pi `/var/lib/akasha-formation/boutique/offres.json`), **publiées** : Cercle de guidance
+  35 € (30/10 19 h), 7 Portes 790 € (31/10, 3×, sur invitation, lieu caché), Stage Éveil 450 € (20-22/11, 3×,
+  sur invitation, lieu caché, ouvre aussi Orishas), Cercle de guérison 35 € (22/11 18 h 30) ; en brouillon :
+  Osso 397 €, Incarnation 1 497 € (3×), Appel d'Âme (prix plus tard).
 - Module « Préparer le Stage Éveil » : brouillon réservé aux inscrits, tiré mot pour mot des textes de
   Maât Soby ; à compléter par elle (horaires, tenue, alimentation, à apporter, contre-indications).
 - Back-office : https://akasha-formation.nubitech.org/admin/ (mot de passe choisi par Laurent ; le
   mot de passe de secours ne marche que sur le réseau local).
-- À faire / en attente : brancher Stripe ; relecture du module de préparation ; retirer « test lolo »
-  de l'agenda maatsoby ; décider si Orishas reste ouverte avec le Stage Éveil ; étape 3 possible (bons
+- À faire / en attente : brancher Stripe ; relecture du module de préparation (document claude.ai « Préparer
+  le Stage Éveil — à relire », https://claude.ai/artifact/Gj4bqaHUK5c4RC4V72mZL5) ; fin réelle des 7 Portes
+  (durée « 7 semaines + 21 jours » lue comme 21 jours par l'agenda) ; Stage Éveil et Cercle de guérison le même
+  22/11 ? ; accès limité au back-office pour Maât Soby ; décider si Orishas reste ouverte avec le Stage Éveil ; étape 3 possible (bons
   cadeaux, abonnements) ; boutons des stages/accompagnements du site maatsoby (demande une modif de son code).
 - Proposition commerciale : artefact « Proposition Maât Soby » (https://claude.ai/artifact/SHoK5equ8HmvKWvyc2dFZd),
   à partager par Laurent.
