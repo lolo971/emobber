@@ -120,6 +120,8 @@ const echecs = new Map();
 
 const scryptAsync = promisify(scrypt);
 const FICHIER_ADMIN = join(DONNEES, 'admin.json');
+// Accès limité de l'organisatrice (Maât Soby) : boutique seulement, ni formations ni facturation.
+const FICHIER_ORGANISATRICE = join(DONNEES, 'organisatrice.json');
 const LIMITE_ESSAIS = 5;
 const FENETRE_ESSAIS = 15 * 60 * 1000;
 
@@ -127,15 +129,33 @@ function empreinte(texte) {
   return createHash('sha256').update(String(texte)).digest();
 }
 
-// Le mot de passe choisi dans le back-office (empreinte scrypt) prime sur celui de l'environnement.
-async function lireAdmin() {
+async function lireCompte(fichier) {
   try {
-    const admin = JSON.parse(await readFile(FICHIER_ADMIN, 'utf8'));
-    return admin?.algo === 'scrypt' && admin.sel && admin.empreinte ? admin : null;
+    const compte = JSON.parse(await readFile(fichier, 'utf8'));
+    return compte?.algo === 'scrypt' && compte.sel && compte.empreinte ? compte : null;
   } catch {
     return null;
   }
 }
+
+async function empreinteCorrecte(compte, propose) {
+  if (!compte || typeof propose !== 'string' || !propose) return false;
+  const calcule = await scryptAsync(propose, Buffer.from(compte.sel, 'hex'), 64);
+  return timingSafeEqual(calcule, Buffer.from(compte.empreinte, 'hex'));
+}
+
+async function ecrireCompte(fichier, motDePasse, extra = {}) {
+  const sel = randomBytes(16);
+  const calcule = await scryptAsync(motDePasse, sel, 64);
+  const contenu = { ...extra, algo: 'scrypt', sel: sel.toString('hex'), empreinte: calcule.toString('hex'), modifieLe: new Date().toISOString() };
+  const temporaire = `${fichier}.${randomBytes(4).toString('hex')}.tmp`;
+  await writeFile(temporaire, `${JSON.stringify(contenu, null, 2)}\n`, { mode: 0o600 });
+  await rename(temporaire, fichier);
+}
+
+// Le mot de passe choisi dans le back-office (empreinte scrypt) prime sur celui de l'environnement.
+const lireAdmin = () => lireCompte(FICHIER_ADMIN);
+const lireOrganisatrice = () => lireCompte(FICHIER_ORGANISATRICE);
 
 async function backOfficeActif() {
   return Boolean(MOT_DE_PASSE) || Boolean(await lireAdmin());
@@ -144,21 +164,19 @@ async function backOfficeActif() {
 async function motDePasseCorrect(propose) {
   if (typeof propose !== 'string' || !propose) return false;
   const admin = await lireAdmin();
-  if (admin) {
-    const calcule = await scryptAsync(propose, Buffer.from(admin.sel, 'hex'), 64);
-    return timingSafeEqual(calcule, Buffer.from(admin.empreinte, 'hex'));
-  }
+  if (admin) return empreinteCorrecte(admin, propose);
   if (!MOT_DE_PASSE) return false;
   return timingSafeEqual(empreinte(propose), empreinte(MOT_DE_PASSE));
 }
 
-async function enregistrerMotDePasse(nouveau) {
-  const sel = randomBytes(16);
-  const calcule = await scryptAsync(nouveau, sel, 64);
-  const contenu = { algo: 'scrypt', sel: sel.toString('hex'), empreinte: calcule.toString('hex'), modifieLe: new Date().toISOString() };
-  const temporaire = `${FICHIER_ADMIN}.${randomBytes(4).toString('hex')}.tmp`;
-  await writeFile(temporaire, `${JSON.stringify(contenu, null, 2)}\n`, { mode: 0o600 });
-  await rename(temporaire, FICHIER_ADMIN);
+const enregistrerMotDePasse = (nouveau) => ecrireCompte(FICHIER_ADMIN, nouveau);
+
+// Mot de passe provisoire de l'organisatrice : lettres et chiffres lisibles (ni 0/O ni 1/l/I).
+function motDePasseProvisoire() {
+  const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const octets = randomBytes(15);
+  const brut = [...octets].map((o) => alphabet[o % alphabet.length]).join('');
+  return `${brut.slice(0, 5)}-${brut.slice(5, 10)}-${brut.slice(10)}`;
 }
 
 // Limite les essais ratés par adresse (connexion et changement de mot de passe).
@@ -176,12 +194,24 @@ function noterEchec(req) {
   echecs.set(ip, { ...actuel, nombre: actuel.nombre + 1 });
 }
 
-function estConnecte(req) {
+// Rôle de la session : « admin » (la plateforme) ou « organisatrice » ; null si personne n'est connecté.
+function roleDe(req) {
   const jeton = lireCookie(req, 'formation_session');
-  const fin = jeton && sessions.get(jeton);
-  if (!fin) return false;
-  if (fin < Date.now()) { sessions.delete(jeton); return false; }
-  return true;
+  const session = jeton && sessions.get(jeton);
+  if (!session) return null;
+  if (session.fin < Date.now()) { sessions.delete(jeton); return null; }
+  return session.role;
+}
+const estConnecte = (req) => Boolean(roleDe(req));
+
+function ouvrirSessionBackOffice(req, role) {
+  const jeton = randomBytes(32).toString('hex');
+  sessions.set(jeton, { fin: Date.now() + DUREE_SESSION, role });
+  return cookieSession(req, jeton, DUREE_SESSION);
+}
+
+function fermerSessions(role, sauf) {
+  for (const [jeton, session] of sessions) if (session.role === role && jeton !== sauf) sessions.delete(jeton);
 }
 
 // Les en-têtes de proxy ne sont crus que s'ils viennent de la machine elle-même (tunnel cloudflared,
@@ -248,12 +278,29 @@ async function servirStatique(res, chemin) {
 
 // ---------- Routes ----------
 
+// Ce que l'organisatrice peut faire : sa boutique (sauf la facturation de la plateforme), lire la liste
+// des formations (pour les relier à une offre), envoyer des images, changer son mot de passe.
+const PERMIS_ORGANISATRICE = [
+  ['GET', /^\/api\/admin\/formations$/],
+  ['POST', /^\/api\/admin\/medias$/],
+  ['POST', /^\/api\/admin\/mot-de-passe$/],
+  ['*', /^\/api\/admin\/boutique\/(?!facturation)/],
+];
+
 function exigerAdmin(req) {
-  if (!estConnecte(req)) throw new ErreurHttp(401, 'Connexion requise.');
+  const role = roleDe(req);
+  if (!role) throw new ErreurHttp(401, 'Connexion requise.');
   // Défense CSRF en plus de SameSite=Strict : les écritures viennent de notre propre script.
   if (req.method !== 'GET' && req.headers['x-requested-with'] !== 'formation') {
     throw new ErreurHttp(403, 'Requête refusée.');
   }
+  if (role === 'organisatrice') {
+    const chemin = new URL(req.url, 'http://local').pathname;
+    if (!PERMIS_ORGANISATRICE.some(([methode, motif]) => (methode === '*' || methode === req.method) && motif.test(chemin))) {
+      throw new ErreurHttp(403, 'Réservé à l\'administrateur de la plateforme.');
+    }
+  }
+  return role;
 }
 
 // Une formation « réservée » s'ouvre aux stagiaires inscrits à une offre qui la contient.
@@ -282,25 +329,27 @@ async function routerApi(req, res, chemin, url) {
 
   // Connexion
   if (req.method === 'GET' && chemin === '/api/admin/session') {
-    return envoyer(res, 200, { connecte: estConnecte(req), active: await backOfficeActif() });
+    const role = roleDe(req);
+    const organisatrice = role === 'organisatrice' ? await lireOrganisatrice() : null;
+    return envoyer(res, 200, { connecte: Boolean(role), role, nom: organisatrice?.nom || '', active: await backOfficeActif() });
   }
   if (req.method === 'POST' && chemin === '/api/admin/connexion') {
     if (!(await backOfficeActif())) throw new ErreurHttp(503, 'Back-office désactivé : définir FORMATION_MOT_DE_PASSE sur le serveur.');
-    // Le mot de passe de secours (variable d'environnement) ne vaut que sur le réseau local :
-    // depuis Internet, il faut celui que l'administrateur a choisi dans le back-office.
-    if (requeteDistante(req) && !(await lireAdmin())) {
-      throw new ErreurHttp(403, 'Depuis Internet, connectez-vous avec le mot de passe choisi dans le back-office. Changez-le d\'abord depuis le réseau local (écran « Mot de passe »).');
-    }
     verifierLimite(req);
     const { motDePasse } = await lireJson(req);
-    if (!(await motDePasseCorrect(motDePasse))) {
+    let role = null;
+    if (await empreinteCorrecte(await lireOrganisatrice(), motDePasse)) role = 'organisatrice';
+    else if (requeteDistante(req) && !(await lireAdmin())) {
+      // Le mot de passe de secours (variable d'environnement) ne vaut que sur le réseau local :
+      // depuis Internet, il faut celui que l'administrateur a choisi dans le back-office.
+      throw new ErreurHttp(403, 'Depuis Internet, connectez-vous avec le mot de passe choisi dans le back-office. Changez-le d\'abord depuis le réseau local (écran « Mot de passe »).');
+    } else if (await motDePasseCorrect(motDePasse)) role = 'admin';
+    if (!role) {
       noterEchec(req);
       throw new ErreurHttp(401, 'Mot de passe incorrect.');
     }
     echecs.delete(adresseClient(req));
-    const jeton = randomBytes(32).toString('hex');
-    sessions.set(jeton, Date.now() + DUREE_SESSION);
-    return envoyer(res, 200, { connecte: true }, { 'Set-Cookie': cookieSession(req, jeton, DUREE_SESSION) });
+    return envoyer(res, 200, { connecte: true, role }, { 'Set-Cookie': ouvrirSessionBackOffice(req, role) });
   }
   if (req.method === 'POST' && chemin === '/api/admin/deconnexion') {
     const jeton = lireCookie(req, 'formation_session');
@@ -310,24 +359,47 @@ async function routerApi(req, res, chemin, url) {
 
   // Back-office
   if (chemin.startsWith('/api/admin/')) {
-    exigerAdmin(req);
+    const role = exigerAdmin(req);
 
     if (req.method === 'POST' && chemin === '/api/admin/mot-de-passe') {
       verifierLimite(req);
       const { actuel, nouveau } = await lireJson(req);
-      if (!(await motDePasseCorrect(actuel))) {
+      const organisatrice = role === 'organisatrice' ? await lireOrganisatrice() : null;
+      const correct = role === 'organisatrice' ? await empreinteCorrecte(organisatrice, actuel) : await motDePasseCorrect(actuel);
+      if (!correct) {
         noterEchec(req);
         throw new ErreurHttp(403, 'Mot de passe actuel incorrect.');
       }
       const manquantes = reglesNonRespectees(nouveau);
       if (actuel === nouveau) manquantes.push('Différent du mot de passe actuel');
       if (manquantes.length) throw new ErreurHttp(422, 'Le nouveau mot de passe ne respecte pas les règles.', { regles: manquantes });
-      await enregistrerMotDePasse(nouveau);
-      // Toutes les autres sessions sont fermées ; celle-ci reste ouverte.
-      const jeton = lireCookie(req, 'formation_session');
-      for (const autre of sessions.keys()) if (autre !== jeton) sessions.delete(autre);
+      if (role === 'organisatrice') await ecrireCompte(FICHIER_ORGANISATRICE, nouveau, { nom: organisatrice.nom });
+      else await enregistrerMotDePasse(nouveau);
+      // Les autres sessions du même compte sont fermées ; celle-ci reste ouverte.
+      fermerSessions(role, lireCookie(req, 'formation_session'));
       echecs.delete(adresseClient(req));
       return envoyer(res, 200, { change: true });
+    }
+
+    // Accès de l'organisatrice : créé, renouvelé ou retiré par l'administrateur.
+    if (chemin === '/api/admin/organisatrice') {
+      if (req.method === 'GET') {
+        const o = await lireOrganisatrice();
+        return envoyer(res, 200, { existe: Boolean(o), nom: o?.nom || '', modifieLe: o?.modifieLe || '' });
+      }
+      if (req.method === 'POST') {
+        const { nom } = await lireJson(req);
+        const provisoire = motDePasseProvisoire();
+        await ecrireCompte(FICHIER_ORGANISATRICE, provisoire, { nom: typeof nom === 'string' && nom.trim() ? nom.trim().slice(0, 80) : 'Maât Soby' });
+        fermerSessions('organisatrice');
+        // Affiché une seule fois : il n'est gardé que sous forme d'empreinte.
+        return envoyer(res, 200, { motDePasse: provisoire });
+      }
+      if (req.method === 'DELETE') {
+        await unlink(FICHIER_ORGANISATRICE).catch((e) => { if (e.code !== 'ENOENT') throw e; });
+        fermerSessions('organisatrice');
+        return envoyer(res, 200, { retire: true });
+      }
     }
     if (req.method === 'GET' && chemin === '/api/admin/formations') {
       return envoyer(res, 200, (await listerFormations()).map(resumer));

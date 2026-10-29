@@ -135,6 +135,10 @@ rsync -a pi@raspberrypi.local:/var/lib/akasha-formation/ ~/sauvegardes/akasha-fo
   prélevée par Stripe, les paiements hors ligne et leur commission, le forfait mensuel, le total à facturer à Maât Soby ;
   export du détail en tableur (CSV). Réglages : `BOUTIQUE_FORFAIT` (centimes, défaut 2500) et `BOUTIQUE_FORFAIT_DEBUT`
   (premier mois facturé, AAAA-MM). Les paiements simulés ne sont pas comptés.
+- **Accès de l'organisatrice** : depuis l'écran « Mot de passe » du back-office, l'administrateur crée (ou renouvelle,
+  ou retire) l'accès de Maât Soby ; un mot de passe provisoire s'affiche une seule fois (à lui transmettre), elle le
+  change ensuite. Elle ne voit que les offres et les inscriptions : ni les formations, ni la facturation, ni la gestion
+  des accès (contrôlé par le serveur). Empreinte dans `<données>/organisatrice.json`.
 - **Pour le site de Maât Soby** : son agenda lit les offres publiées de la boutique (`GET /api/boutique/offres`) :
   `deploy/maatsoby/brancher-agenda-boutique.mjs` adapte son `server.js` (cache d'une minute, dernière liste gardée
   sur disque, secours sur ses propres dates). Tant que le paiement en ligne n'est pas ouvert, une offre payante se

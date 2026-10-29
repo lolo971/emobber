@@ -59,8 +59,13 @@ export async function vueOffres() {
 
 function bandeauEtat(etat) {
   const { el } = o;
+  // L'organisatrice n'a que l'essentiel : les réglages techniques sont l'affaire de la plateforme.
+  if (o.estOrganisatrice?.()) {
+    return etat.paiement === 'reel' || etat.paiement === 'test' ? null
+      : el('p', { class: 'aide etat-boutique' }, 'Paiement en ligne bientôt ouvert : en attendant, les offres payantes se réservent par message (WhatsApp).');
+  }
   const paiement = {
-    aucun: ['Paiement en ligne fermé', 'Ajoutez la clé Stripe sur le serveur : seules les offres gratuites se réservent pour l\'instant.'],
+    aucun: ['Paiement en ligne fermé', 'En attendant Stripe, les offres payantes se réservent par message (BOUTIQUE_CONTACT) ; les offres gratuites, en ligne.'],
     simulation: ['Mode essai', 'Les paiements sont simulés : aucun argent ne circule.'],
     test: ['Stripe en mode test', 'Cartes de test uniquement (4242 4242 4242 4242).'],
     reel: ['Stripe en mode réel', ''],

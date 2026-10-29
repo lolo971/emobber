@@ -221,3 +221,5 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .tableau-facturation tbody tr:nth-child(even) { background: rgba(255, 255, 255, .015); }
 /* Sur téléphone, la colonne des mois reste visible pendant le défilement horizontal */
 .tableau-facturation tbody th, .tableau-facturation tfoot th, .tableau-facturation thead th:first-child { position: sticky; left: 0; z-index: 1; background: var(--basalt); }
+
+.mot-provisoire { font: 600 1.25rem var(--f-mono); letter-spacing: .06em; color: var(--gold-clair); user-select: all; -webkit-user-select: all; }

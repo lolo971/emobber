@@ -12,6 +12,9 @@ let formation = null;
 let selection = 'parametres'; // 'parametres' ou index de niveau
 let modifie = false;
 let bilan = { erreurs: [], avertissements: [] };
+// « admin » (la plateforme) ou « organisatrice » (Maât Soby : boutique seulement).
+let role = 'admin';
+const estOrganisatrice = () => role === 'organisatrice';
 
 // ---------- Outils ----------
 
@@ -136,7 +139,7 @@ async function vueConnexion() {
   const motDePasse = el('input', { type: 'password', autocomplete: 'current-password', required: true, id: 'mdp' });
   app.replaceChildren(el('main', { class: 'connexion' },
     el('p', { class: 'marque' }, 'AKASHA'),
-    el('h1', {}, 'Back-office de formation'),
+    el('h1', {}, 'Back-office'),
     session.active === false
       ? el('p', { class: 'message-erreur' }, 'Le back-office est fermé : définissez FORMATION_MOT_DE_PASSE sur le serveur, puis redémarrez-le.')
       : el('form', {
@@ -207,8 +210,11 @@ function enTete(...milieu) {
     if (modifie && !confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) e.preventDefault(); else modifie = false;
   } }, libelle);
   return el('header', { class: 'barre-admin' },
-    el('a', { class: 'marque', href: '#/' }, 'AKASHA'),
-    el('nav', { class: 'onglets', 'aria-label': 'Sections' }, onglet('#/', 'formations', 'Formations'), onglet('#/offres', 'offres', 'Offres'), onglet('#/inscriptions', 'inscriptions', 'Inscriptions'), onglet('#/facturation', 'facturation', 'Facturation')),
+    el('a', { class: 'marque', href: estOrganisatrice() ? '#/offres' : '#/' }, estOrganisatrice() ? 'MAÂT SOBY' : 'AKASHA'),
+    el('nav', { class: 'onglets', 'aria-label': 'Sections' },
+      !estOrganisatrice() && onglet('#/', 'formations', 'Formations'),
+      onglet('#/offres', 'offres', 'Offres'), onglet('#/inscriptions', 'inscriptions', 'Inscriptions'),
+      !estOrganisatrice() && onglet('#/facturation', 'facturation', 'Facturation')),
     ...milieu,
     el('a', { class: 'bouton discret petit', href: '#/mot-de-passe', onclick: (e) => {
       if (modifie && !confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) e.preventDefault(); else modifie = false;
@@ -602,9 +608,43 @@ function vueMotDePasse() {
   el('p', { class: 'etiquette' }, 'Règles'), liste, message,
   el('div', { class: 'boutons-ligne' }, valider, el('a', { class: 'bouton discret', href: '#/' }, 'Retour')));
 
-  app.replaceChildren(enTete(el('span', { class: 'titre-barre' }, 'Mot de passe')), el('main', { class: 'page-admin etroite' }, formulaire));
+  app.replaceChildren(enTete(el('span', { class: 'titre-barre' }, 'Mot de passe')),
+    el('main', { class: 'page-admin etroite pile' }, formulaire, !estOrganisatrice() && sectionOrganisatrice()));
   verifier();
   actuel.input.focus();
+}
+
+// ---------- Accès de l'organisatrice (géré par l'administrateur) ----------
+
+function sectionOrganisatrice() {
+  const zone = el('section', { class: 'carte-edition' });
+  async function rendre(nouveau) {
+    const o = await api('GET', 'admin/organisatrice');
+    const partage = nouveau && `Ton accès à la boutique : https://akasha-formation.nubitech.org/admin/\nMot de passe provisoire : ${nouveau}\nChange-le dès ta première connexion (bouton « Mot de passe »).`;
+    zone.replaceChildren(
+      el('h2', {}, 'Accès de Maât Soby'),
+      el('p', { class: 'aide' }, 'Un accès limité à la boutique : offres et agenda, inscriptions, liens personnels, liste d\'attente. Ni les formations, ni votre facturation, ni votre mot de passe.'),
+      nouveau && el('div', { class: 'bilan etat-boutique ok' },
+        el('p', {}, 'Mot de passe provisoire (affiché une seule fois) :'),
+        el('p', {}, el('strong', { class: 'mot-provisoire' }, nouveau)),
+        el('div', { class: 'boutons-ligne' },
+          el('button', { type: 'button', class: 'bouton secondaire petit', onclick: async () => {
+            try { await navigator.clipboard.writeText(partage); annoncer('Message copié.', 'succes'); } catch { prompt('Copiez ce message :', partage); }
+          } }, 'Copier le message'),
+          el('a', { class: 'bouton secondaire petit', href: `https://wa.me/?text=${encodeURIComponent(partage)}`, target: '_blank', rel: 'noopener' }, 'Envoyer par WhatsApp'))),
+      el('p', {}, o.existe ? `Accès actif (${o.nom}) depuis le ${new Date(o.modifieLe).toLocaleDateString('fr-FR')}.` : 'Aucun accès pour le moment.'),
+      el('div', { class: 'boutons-ligne' },
+        el('button', { type: 'button', class: 'bouton secondaire', onclick: async () => {
+          if (o.existe && !confirm('Créer un nouveau mot de passe ? L\'ancien ne fonctionnera plus et Maât Soby sera déconnectée.')) return;
+          try { await rendre((await api('POST', 'admin/organisatrice', { nom: 'Maât Soby' })).motDePasse); } catch (e) { annoncer(e.message, 'erreur'); }
+        } }, o.existe ? 'Nouveau mot de passe' : 'Créer son accès'),
+        o.existe && el('button', { type: 'button', class: 'bouton danger petit', onclick: async () => {
+          if (!confirm('Retirer l\'accès de Maât Soby ?')) return;
+          try { await api('DELETE', 'admin/organisatrice'); annoncer('Accès retiré.', 'succes'); await rendre(); } catch (e) { annoncer(e.message, 'erreur'); }
+        } }, 'Retirer l\'accès')));
+  }
+  rendre().catch((e) => annoncer(e.message, 'erreur'));
+  return zone;
 }
 
 // ---------- Navigation ----------
@@ -613,6 +653,12 @@ async function routeur() {
   try {
     const session = await api('GET', 'admin/session');
     if (!session.connecte) return vueConnexion();
+    role = session.role || 'admin';
+    // L'organisatrice n'a accès qu'à la boutique : tout le reste la ramène à ses offres.
+    if (estOrganisatrice() && !/^#\/(offres|o\/|inscriptions|mot-de-passe)/.test(location.hash)) {
+      location.replace('#/offres');
+      return;
+    }
     const m = location.hash.match(/^#\/f\/([a-z0-9-]+)$/);
     if (location.hash === '#/mot-de-passe') { formation = null; vueMotDePasse(); return; }
     const offre = location.hash.match(/^#\/o\/([a-z0-9-]+)$/);
@@ -628,6 +674,6 @@ async function routeur() {
   }
 }
 
-installerBoutique({ el, api, annoncer, champ, enTete, choisirImage, app });
+installerBoutique({ el, api, annoncer, champ, enTete, choisirImage, app, estOrganisatrice });
 window.addEventListener('hashchange', routeur);
 routeur();
