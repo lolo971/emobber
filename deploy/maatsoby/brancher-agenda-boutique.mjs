@@ -23,7 +23,16 @@ function remplacer(texte, avant, apres, fichier) {
 const cheminServeur = join(dossier, 'server.js');
 let s = readFileSync(cheminServeur, 'utf8');
 if (s.includes(MARQUE)) {
-  console.log('server.js : déjà branché, rien à faire.');
+  // Version précédente : seuls les « jours » étaient comptés ; on ajoute les semaines.
+  const ANCIENNE_DUREE = "const jours = Math.max(1, Number((String(o.duree || '').match(/(\\d+)\\s*jours?/i) || [])[1]) || 1);";
+  if (s.includes(ANCIENNE_DUREE)) {
+    s = s.replace(ANCIENNE_DUREE, () => `const jours = Math.max(1, [...String(o.duree || '').toLowerCase().matchAll(/(\\d+)\\s*(semaines?|jours?)/g)]
+    .reduce((t, [, n, u]) => t + Number(n) * (u.startsWith('semaine') ? 7 : 1), 0));`);
+    writeFileSync(cheminServeur, s);
+    console.log('server.js : durée en semaines prise en compte.');
+  } else {
+    console.log('server.js : déjà branché, rien à faire.');
+  }
 } else {
   s = remplacer(s, `let sessions = lire('sessions.json', {});\n`, `let sessions = lire('sessions.json', {});
 
@@ -54,7 +63,8 @@ function versEvenement(o) {
   const comparable = v => enSlug(v, 200);
   const lie = site.evenements.find(e => e.stage === o.id || e.slug === o.id || comparable(e.titre) === comparable(o.titre));
   const debut = String(o.date).slice(0, 10);
-  const jours = Math.max(1, Number((String(o.duree || '').match(/(\\d+)\\s*jours?/i) || [])[1]) || 1);
+  const jours = Math.max(1, [...String(o.duree || '').toLowerCase().matchAll(/(\\d+)\\s*(semaines?|jours?)/g)]
+    .reduce((t, [, n, u]) => t + Number(n) * (u.startsWith('semaine') ? 7 : 1), 0));
   const fin = new Date(Date.parse(debut + 'T12:00:00Z') + (jours - 1) * 864e5).toISOString().slice(0, 10);
   const heure = String(o.date).includes('T') ? String(o.date).slice(11, 16).replace(':', ' h ') : (lie?.heure || '');
   const tarif = o.paiement === 'invitation' ? 'Sur rendez-vous'

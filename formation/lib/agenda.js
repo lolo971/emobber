@@ -14,8 +14,10 @@ function composants(date) {
 // Durée lue dans le texte libre de l'offre (« 2 h », « 1 h 30 », « 3 jours ») ; 2 h par défaut.
 function dureeEnMinutes(duree, avecHeure) {
   const texte = String(duree || '').toLowerCase();
-  const jours = texte.match(/(\d+)\s*jours?/);
-  if (jours) return Number(jours[1]) * 24 * 60;
+  // « 3 jours », « 7 semaines », « 7 semaines + 21 jours » : les semaines et les jours s'additionnent.
+  const jours = [...texte.matchAll(/(\d+)\s*(semaines?|jours?)/g)]
+    .reduce((total, [, n, unite]) => total + Number(n) * (unite.startsWith('semaine') ? 7 : 1), 0);
+  if (jours) return jours * 24 * 60;
   const heures = texte.match(/(\d+)\s*h(?:eures?)?\s*(\d+)?/);
   const minutes = texte.match(/(\d+)\s*min/);
   if (heures) return Number(heures[1]) * 60 + Number(heures[2] || 0);
