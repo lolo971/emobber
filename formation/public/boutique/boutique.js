@@ -215,6 +215,13 @@ function infos(o) {
       el('span', {}, o.complet ? 'Complet' : `${o.placesRestantes} restante${o.placesRestantes > 1 ? 's' : ''}`)));
 }
 
+// Lien WhatsApp avec un message prêt (« je souhaite m'inscrire… »), sinon le contact tel quel.
+function lienContact(o) {
+  if (!/^https:\/\/wa\.me\//.test(o.contact) || o.contact.includes('text=')) return o.contact;
+  const message = `Bonjour Mâ'ât Soby, je souhaite m'inscrire : ${o.titre}${o.dateLisible ? ` (${o.dateLisible})` : ''}.`;
+  return `${o.contact}${o.contact.includes('?') ? '&' : '?'}text=${encodeURIComponent(message)}`;
+}
+
 async function vueOffre(id) {
   const o = await api('GET', `boutique/offres/${encodeURIComponent(id)}`);
   let action;
@@ -225,6 +232,12 @@ async function vueOffre(id) {
       o.contact && el('a', { class: 'bouton large', href: o.contact, target: '_blank', rel: 'noopener' }, 'Prendre contact'));
   } else if (o.complet) {
     action = listeAttente(o);
+  } else if (!o.reservationEnLigne) {
+    action = el('div', { class: 'carte' },
+      el('h2', {}, 'Réserver ma place'),
+      el('p', {}, `Le paiement en ligne ouvre bientôt. En attendant, écris à ${NOM} pour réserver : ton message est déjà prêt.`),
+      o.contact ? el('a', { class: 'bouton large', href: lienContact(o), target: '_blank', rel: 'noopener' }, 'Réserver par message')
+        : el('p', { class: 'aide' }, 'Les réservations ouvrent bientôt.'));
   } else {
     action = formulaire({
       prix: o.prix, echeances: o.echeances, libelle: 'Confirmer mon inscription',

@@ -15,6 +15,8 @@
 //   BOUTIQUE_COURRIEL_WEBHOOK  webhook (n8n) qui envoie les e-mails : reçoit { a, sujet, texte, html }
 //   BOUTIQUE_COURRIEL_SECRET   secret partagé avec ce webhook (en-tête X-Courriel-Secret)
 //   BOUTIQUE_COURRIEL_ADMIN    adresse prévenue à chaque inscription
+//   BOUTIQUE_CONTACT           contact par défaut (ex. https://wa.me/590…) : sert aussi à réserver tant que le
+//                              paiement en ligne n'est pas ouvert
 //   BOUTIQUE_ORIGINES          sites autorisés à lire la liste des offres (défaut : https://maatsoby.nubitech.org)
 //   BOUTIQUE_SIMULATION=1      paiements simulés, pour essayer sans Stripe (jamais en production)
 
@@ -68,6 +70,7 @@ export function creerBoutique(ctx) {
     secretWebhook: env.STRIPE_SECRET_WEBHOOK || '',
     adminCourriel: env.BOUTIQUE_COURRIEL_ADMIN || '',
     forfait: Math.max(0, Math.round(Number(env.BOUTIQUE_FORFAIT ?? 2500) || 0)),
+    contact: /^(https:\/\/|mailto:|tel:)\S+$/.test(env.BOUTIQUE_CONTACT || '') ? env.BOUTIQUE_CONTACT : '',
     forfaitDebut: /^\d{4}-\d{2}$/.test(env.BOUTIQUE_FORFAIT_DEBUT || '') ? env.BOUTIQUE_FORFAIT_DEBUT : '',
     origines: (env.BOUTIQUE_ORIGINES ?? 'https://maatsoby.nubitech.org').split(',').map((s) => s.trim()).filter(Boolean),
     simulation: env.BOUTIQUE_SIMULATION === '1' && !env.STRIPE_CLE_SECRETE,
@@ -120,7 +123,10 @@ export function creerBoutique(ctx) {
       description: o.description, image: o.image ? `${base(req)}/${o.image}` : '', date: o.date,
       dateLisible: dateLisible(o.date), duree: o.duree, lieu: o.lieu, prix: o.prix, prixLisible: euros(o.prix),
       echeances: o.echeances, paiement: o.paiement, placesRestantes: restantes, complet: restantes === 0,
-      passee: passee(o), contact: o.contact, url: `${base(req)}/boutique/#/offre/${o.id}`,
+      passee: passee(o), contact: o.contact || config.contact,
+      // Paiement en ligne pas encore ouvert : une offre payante se réserve par le contact.
+      reservationEnLigne: o.prix === 0 || modePaiement !== 'aucun',
+      url: `${base(req)}/boutique/#/offre/${o.id}`,
       agenda: o.date ? `${base(req)}/api/boutique/offres/${o.id}/agenda.ics` : '',
     };
   }

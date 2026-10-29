@@ -135,7 +135,10 @@ rsync -a pi@raspberrypi.local:/var/lib/akasha-formation/ ~/sauvegardes/akasha-fo
   prélevée par Stripe, les paiements hors ligne et leur commission, le forfait mensuel, le total à facturer à Maât Soby ;
   export du détail en tableur (CSV). Réglages : `BOUTIQUE_FORFAIT` (centimes, défaut 2500) et `BOUTIQUE_FORFAIT_DEBUT`
   (premier mois facturé, AAAA-MM). Les paiements simulés ne sont pas comptés.
-- **Pour le site de Maât Soby** : `GET /api/boutique/offres` (JSON, lisible depuis `https://maatsoby.nubitech.org`),
+- **Pour le site de Maât Soby** : son agenda lit les offres publiées de la boutique (`GET /api/boutique/offres`) :
+  `deploy/maatsoby/brancher-agenda-boutique.mjs` adapte son `server.js` (cache d'une minute, dernière liste gardée
+  sur disque, secours sur ses propres dates). Tant que le paiement en ligne n'est pas ouvert, une offre payante se
+  réserve par message (`BOUTIQUE_CONTACT`, lien WhatsApp avec message prêt).
   chaque offre a une adresse `url` vers sa fiche de réservation.
 
 Réglages (dans `/etc/akasha-formation.env`, puis `sudo systemctl restart akasha-formation`) :
@@ -146,6 +149,7 @@ STRIPE_CLE_SECRETE=sk_test_…        # clé secrète du compte Stripe de la pla
 STRIPE_COMPTE=acct_…                # compte Stripe connecté de Maât Soby
 STRIPE_SECRET_WEBHOOK=whsec_…       # webhook « comptes connectés » → https://akasha-formation.nubitech.org/api/stripe/webhook
 BOUTIQUE_COMMISSION=10
+BOUTIQUE_CONTACT=https://wa.me/590…  # contact par défaut ; réservation par message tant que Stripe est fermé
 BOUTIQUE_FORFAIT=2500               # forfait mensuel de la plateforme, en centimes
 BOUTIQUE_FORFAIT_DEBUT=AAAA-MM      # premier mois du forfait
 BOUTIQUE_COURRIEL_WEBHOOK=https://…  # webhook n8n qui envoie l'e-mail { a, sujet, texte, html }
